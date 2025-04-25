@@ -2,8 +2,8 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-    entry: "./src/index.ts", // Entry point of your TypeScript application
-    devtool: "inline-source-map", // Enable source maps for debugging
+    entry: "./src/index.ts",
+    devtool: "inline-source-map",
     module: {
         rules: [
             {
@@ -11,23 +11,41 @@ module.exports = {
                 use: "ts-loader",
                 exclude: /node_modules/,
             },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif|mp3|wav)$/i,
+                type: "asset/resource",
+                generator: {
+                    filename: "assets/[name][ext]",
+                },
+            },
         ],
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
     },
     output: {
-        filename: "bundle.js", // Output bundle file name
-        path: path.resolve(__dirname, "dist"), // Output directory
+        filename: "bundle.js",
+        path: path.resolve(__dirname, "dist"),
         clean: true,
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: "./src/index.html", // Path to your HTML template
+            template: "./src/index.html",
         }),
+        {
+            apply: (compiler) => {
+                compiler.hooks.emit.tap("LogEmittedAssets", (compilation) => {
+                    console.log("\n--- Webpack Emitted Assets ---");
+                    Object.keys(compilation.assets).forEach((asset) => {
+                        console.log(asset);
+                    });
+                    console.log("-----------------------------\n");
+                });
+            },
+        },
     ],
     devServer: {
-        static: "./dist", // Serve files from the dist directory
-        hot: true, // Enable hot reloading
+        static: "./dist",
+        hot: true,
     },
 };

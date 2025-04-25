@@ -9,9 +9,10 @@
         "skipLibCheck": true,
         "outDir": "./dist",
         "sourceMap": true,
-        "baseUrl": "./src",
+        "baseUrl": "./",
+        "rootDir": "./",
         "paths": {
-            "": [""]
+            "src/*": ["./src/*"]
         }
     },
     "include": ["src/**/*"]

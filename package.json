@@ -19,6 +19,7 @@
     "homepage": "https://github.com/RaiiaaGithub/linf-am-final-project#readme",
     "description": "",
     "devDependencies": {
+        "file-loader": "^6.2.0",
         "html-webpack-plugin": "^5.6.3",
         "ts-loader": "^9.5.2",
         "typescript": "^5.7.3",

@@ -1,21 +1,30 @@
-import { Game } from "./core/game";
-import {
-    CharacterBody,
-    CollisionShape,
-    RetangleShape,
-    RigidBody,
-    Sprite,
-    StaticBody,
-} from "./core/nodes";
+import { Node2D } from "./core/nodes/node";
+import { Sprite } from "./core/nodes/sprite";
+import { Texture } from "./core/utils/texture";
+import { TestScene } from "./scenes/test-scene";
 
-// Example usage:
 const canvas = document.querySelector("canvas#game") as HTMLCanvasElement;
 canvas.width = innerWidth;
 canvas.height = innerHeight;
-const game = new Game(canvas);
 
-const node = new Sprite().setColor("#000000", 50, 50);
-game.addNode(node);
+// importd the assets têm que ser a usar URL para o webpack conseguir buildar os assets.
 
-// Start the game
-game.start();
+const ctx = canvas.getContext("2d");
+
+const scene = new TestScene();
+
+start();
+
+function start() {
+    if (!ctx) {
+        throw new Error("Failed to get 2D context");
+    }
+
+    requestAnimationFrame(() => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        scene.update(ctx, 0);
+
+        start();
+    });
+}
