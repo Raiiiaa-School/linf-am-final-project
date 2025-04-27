@@ -1,6 +1,4 @@
-import { Node2D } from "./core/nodes/node";
-import { Sprite } from "./core/nodes/sprite";
-import { Texture } from "./core/utils/texture";
+import { CollisionManager } from "./core/manager/collision-manager";
 import { TestScene } from "./scenes/test-scene";
 
 const canvas = document.querySelector("canvas#game") as HTMLCanvasElement;
@@ -13,18 +11,28 @@ const ctx = canvas.getContext("2d");
 
 const scene = new TestScene();
 
-start();
+let lastTime = 0;
 
-function start() {
+async function start() {
+    lastTime = performance.now();
+    await scene.start();
+    console.log(CollisionManager);
+    requestAnimationFrame(gameLoop);
+}
+
+function gameLoop(timeStamp: number) {
     if (!ctx) {
         throw new Error("Failed to get 2D context");
     }
 
-    requestAnimationFrame(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const deltaTime = Math.min(timeStamp - lastTime, 50) / 1000;
+    lastTime = timeStamp;
 
-        scene.update(ctx, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        start();
-    });
+    scene.update(ctx, deltaTime);
+
+    requestAnimationFrame(gameLoop);
 }
+
+start();

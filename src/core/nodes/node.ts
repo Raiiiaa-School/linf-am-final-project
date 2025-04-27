@@ -116,6 +116,7 @@ export class Node2D {
     public addChild(child: Node2D): Node2D {
         this.children.push(child);
         child.parent = this;
+        child._init();
         return this;
     }
 
@@ -136,6 +137,12 @@ export class Node2D {
         if (this.parent) {
             this.parent.removeChild(this);
         }
+    }
+
+    public initialize(): void {
+        this._ready();
+
+        this.children.forEach((child) => child._ready());
     }
 
     public update(delta: number): void {
@@ -161,6 +168,7 @@ export class Node2D {
         ctx.restore();
     }
 
+    protected _init(): void {}
     protected _ready(): void {}
     protected _process(delta: number): void {}
     protected _draw(ctx: CanvasRenderingContext2D): void {}
