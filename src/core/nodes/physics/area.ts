@@ -1,3 +1,4 @@
+import { PhysicsEngine } from "src/core/modules/physics-engine";
 import { CollisionObject, CollisionObjectSettings } from "./collision-object";
 
 export class Area extends CollisionObject {
@@ -8,6 +9,8 @@ export class Area extends CollisionObject {
         super(settings);
         this.monitorable = settings?.monitorable ?? true;
         this.monitoring = settings?.monitoring ?? true;
+
+        PhysicsEngine.addArea(this);
     }
 
     public onCollision(other: CollisionObject): void {

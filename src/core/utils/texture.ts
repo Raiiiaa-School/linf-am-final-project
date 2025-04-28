@@ -50,15 +50,26 @@ export class Texture {
         return this.color;
     }
 
-    render(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    render(ctx: CanvasRenderingContext2D) {
         if (!this.loaded) return;
 
         if (this.image) {
-            ctx.drawImage(this.image, x, y, this.width, this.height);
+            ctx.drawImage(
+                this.image,
+                -this.width / 2,
+                -this.height / 2,
+                this.width,
+                this.height,
+            );
         } else if (this.color) {
             const previousFillStyle = ctx.fillStyle;
             ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.color.a})`;
-            ctx.fillRect(x, y, this.width, this.height);
+            ctx.fillRect(
+                -this.width / 2,
+                -this.height / 2,
+                this.width,
+                this.height,
+            );
             ctx.fillStyle = previousFillStyle;
         }
     }

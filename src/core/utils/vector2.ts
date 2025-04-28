@@ -63,6 +63,14 @@ export class Vector2 {
         return this;
     }
 
+    public rotate(angle: number): Vector2 {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        this.x = this.x * cos - this.y * sin;
+        this.y = this.x * sin + this.y * cos;
+        return new Vector2(this.x, this.y);
+    }
+
     public cross(other: Vector2): number {
         return this.x * other.y - this.y * other.x;
     }

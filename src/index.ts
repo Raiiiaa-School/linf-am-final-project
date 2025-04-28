@@ -1,4 +1,3 @@
-import { CollisionManager } from "./core/manager/collision-manager";
 import { TestScene } from "./scenes/test-scene";
 
 const canvas = document.querySelector("canvas#game") as HTMLCanvasElement;
@@ -16,7 +15,6 @@ let lastTime = 0;
 async function start() {
     lastTime = performance.now();
     await scene.start();
-    console.log(CollisionManager);
     requestAnimationFrame(gameLoop);
 }
 

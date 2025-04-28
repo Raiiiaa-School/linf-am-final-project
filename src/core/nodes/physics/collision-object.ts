@@ -1,7 +1,7 @@
-import { CollisionManager } from "../manager/collision-manager";
 import { CollisionShape } from "./collision-shape";
-import { Node2D, Node2DSettings } from "./node";
-import { Sprite } from "./sprite";
+import { Node2D, Node2DSettings } from "../node";
+import { Sprite } from "../sprite";
+import { CollisionInfo } from "src/core/utils/collision";
 
 export enum CollisionLayer {
     NONE = 0,
@@ -25,8 +25,6 @@ export abstract class CollisionObject extends Node2D {
         super(settings);
         this.collisionLayer = settings?.collisionLayer ?? CollisionLayer.LAYER1;
         this.collisionMask = settings?.collisionMask ?? CollisionLayer.ALL;
-
-        CollisionManager.addObject(this);
     }
 
     canCollideWith(other: CollisionObject): boolean {
@@ -47,7 +45,10 @@ export abstract class CollisionObject extends Node2D {
         return this.collisionShape;
     }
 
-    public abstract onCollision(other: CollisionObject): void;
+    public abstract onCollision(
+        other: CollisionObject,
+        collisionInfo: CollisionInfo,
+    ): void;
 }
 
 export interface CollisionObjectSettings extends Node2DSettings {

@@ -11,7 +11,8 @@ export class Sprite extends Node2D {
     }
 
     protected _draw(ctx: CanvasRenderingContext2D): void {
-        this.texture.render(ctx, 0, 0);
+        const position = this.getGlobalPosition();
+        this.texture.render(ctx);
     }
 }
 

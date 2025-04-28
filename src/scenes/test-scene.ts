@@ -3,12 +3,12 @@ import { Camera } from "../core/nodes/camera";
 import { Node2D } from "../core/nodes/node";
 import { Sprite } from "../core/nodes/sprite";
 import { Texture } from "../core/utils/texture";
-import { Rigidbody } from "../core/nodes/rigidbody";
-import { CollisionShape } from "../core/nodes/collision-shape";
-import { RectangleShape } from "../core/utils/shape";
-import { StaticBody } from "../core/nodes/staticbody";
+import { Rigidbody } from "../core/nodes/physics/rigidbody";
+import { CollisionShape } from "../core/nodes/physics/collision-shape";
+import { Shape } from "../core/utils/shape";
+import { StaticBody } from "../core/nodes/physics/staticbody";
 import { COLORS } from "../core/constants/colors";
-import { CollisionManager } from "../core/manager/collision-manager";
+import { PhysicsEngine } from "../core/modules/physics-engine";
 
 export class TestScene {
     private rootNode: Node2D;
@@ -17,27 +17,29 @@ export class TestScene {
     constructor() {
         this.player = new Rigidbody({
             name: "Player",
-            position: new Vector2(100, 0),
+            position: new Vector2(150, 0),
+            mass: 2,
         })
             .addChild(
                 new Sprite({
                     texture: Texture.fromColor(COLORS.RED, 50, 50),
                 }),
             )
-            .addChild(
-                new CollisionShape({ shape: new RectangleShape(50, 50) }),
-            );
+            .addChild(new CollisionShape({ shape: Shape.Rectangle(50, 50) }));
         this.rootNode = new Node2D()
             .addChild(
-                new StaticBody({ position: new Vector2(0, 720) })
+                new Rigidbody({
+                    position: new Vector2(250, 500),
+                    mass: 5,
+                })
                     .addChild(
                         new Sprite({
-                            texture: Texture.fromColor(COLORS.PINK, 2000, 200),
+                            texture: Texture.fromColor(COLORS.PINK, 250, 100),
                         }),
                     )
                     .addChild(
                         new CollisionShape({
-                            shape: new RectangleShape(2000, 200),
+                            shape: Shape.Rectangle(250, 100),
                         }),
                     ),
             )
@@ -54,8 +56,8 @@ export class TestScene {
     }
 
     update(ctx: CanvasRenderingContext2D, delta: number) {
+        PhysicsEngine.update(delta);
         this.rootNode.update(delta);
-        CollisionManager.update();
         this.rootNode.draw(ctx);
     }
 }
