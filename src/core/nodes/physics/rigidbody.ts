@@ -3,7 +3,7 @@ import { Vector2 } from "../../utils/vector2";
 import { PhysicsObject, PhysicsObjectSettings } from "./physics-object";
 import { StaticBody } from "./staticbody";
 
-export class Rigidbody extends PhysicsObject {
+export class RigidBody extends PhysicsObject {
     constructor(settings?: RigidBodySettings) {
         super(settings);
         this.name = settings?.name ?? "Rigidbody";
@@ -33,7 +33,7 @@ export class Rigidbody extends PhysicsObject {
         if (other instanceof StaticBody) {
             // Handle collision with static body
             this.handleStaticCollision(collisionInfo);
-        } else if (other instanceof Rigidbody) {
+        } else if (other instanceof RigidBody) {
             // Handle collision with another rigidbody
             this.handleDynamicCollision(other, collisionInfo);
         }
@@ -64,7 +64,7 @@ export class Rigidbody extends PhysicsObject {
     }
 
     private handleDynamicCollision(
-        other: Rigidbody,
+        other: RigidBody,
         collisionInfo: CollisionInfo,
     ): void {
         if (!collisionInfo.mtv) return;

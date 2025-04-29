@@ -3,11 +3,11 @@ import { Camera } from "../core/nodes/camera";
 import { Node2D } from "../core/nodes/node";
 import { Sprite } from "../core/nodes/sprite";
 import { Texture } from "../core/utils/texture";
-import { Rigidbody } from "../core/nodes/physics/rigidbody";
+import { RigidBody } from "../core/nodes/physics/rigidbody";
 import { CollisionShape } from "../core/nodes/physics/collision-shape";
 import { Shape } from "../core/utils/shape";
 import { StaticBody } from "../core/nodes/physics/staticbody";
-import { COLORS } from "../core/constants/colors";
+import { Colors } from "../core/constants/colors";
 import { PhysicsEngine } from "../core/modules/physics-engine";
 
 export class TestScene {
@@ -15,26 +15,26 @@ export class TestScene {
     private player: Node2D;
 
     constructor() {
-        this.player = new Rigidbody({
+        this.player = new RigidBody({
             name: "Player",
             position: new Vector2(150, 0),
             mass: 2,
         })
             .addChild(
                 new Sprite({
-                    texture: Texture.fromColor(COLORS.RED, 50, 50),
+                    texture: Texture.fromColor(Colors.RED, 50, 50),
                 }),
             )
             .addChild(new CollisionShape({ shape: Shape.Rectangle(50, 50) }));
         this.rootNode = new Node2D()
             .addChild(
-                new Rigidbody({
+                new StaticBody({
                     position: new Vector2(250, 500),
-                    mass: 5,
+                    mass: 10,
                 })
                     .addChild(
                         new Sprite({
-                            texture: Texture.fromColor(COLORS.PINK, 250, 100),
+                            texture: Texture.fromColor(Colors.PINK, 250, 100),
                         }),
                     )
                     .addChild(
