@@ -44,16 +44,32 @@ export abstract class PhysicsObject extends CollisionObject {
         return this.velocity.clone();
     }
 
+    public getMass(): number {
+        return this.mass;
+    }
+
+    public getBounciness(): number {
+        return this.bounciness;
+    }
+
+    public setVelocity(velocity: Vector2): void {
+        this.velocity = velocity.clone();
+    }
+
     public isOnFloor(): boolean {
         return this.isGrounded;
     }
 
-    public checkFloorCollision(collisionInfo: CollisionInfo): void {
+    public checkFloorCollision(
+        body: PhysicsObject,
+        collisionInfo: CollisionInfo,
+    ): void {
         if (!collisionInfo.mtv) {
             return;
         }
-        const normal = collisionInfo.mtv.normalize();
-        const upDot = normal.dot(new Vector2(0, -1));
+
+        const normal = collisionInfo.mtv.clone().normalize();
+        const upDot = normal.clone().dot(Vector2.DOWN);
 
         if (upDot > 0.7) {
             this.isGrounded = true;
@@ -66,6 +82,19 @@ export abstract class PhysicsObject extends CollisionObject {
     ): void;
 
     public updatePhysics(delta: number) {
+        if (this.useGravity && !this.isGrounded) {
+            const newVelY = this.velocity.y + this.gravity.y * delta;
+            this.velocity.y = Math.min(newVelY, this.MAX_FALL_SPEED);
+        }
+
+        this.velocity.add(this.acceleration.clone().multiply(delta));
+        this.velocity.multiply(1 - this.friction * delta);
+
+        const movement = this.velocity.clone().multiply(delta);
+        this.position.add(movement);
+
+        this.isGrounded = false;
+
         this._physicsProcess(delta);
     }
 

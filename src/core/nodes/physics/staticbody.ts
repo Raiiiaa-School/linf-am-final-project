@@ -7,16 +7,16 @@ export class StaticBody extends PhysicsObject {
     constructor(settings?: StaticBodySettings) {
         super({
             ...settings,
-            mass: Infinity,
+            mass: 10,
             friction: 0,
             useGravity: false,
         });
         this.name = settings?.name ?? "StaticBody";
     }
 
-    public setPosition(position: Vector2): void {
-        super.setPosition(position);
-    }
+    public updatePhysics(delta: number): void {}
+
+    protected _physicsProcess(delta: number): void {}
 
     protected moveAndCollide(delta: number): void {}
 

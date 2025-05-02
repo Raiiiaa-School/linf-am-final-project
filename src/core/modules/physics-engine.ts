@@ -36,8 +36,11 @@ export class PhysicsEngine {
     }
 
     private static checkCollisions() {
-        for (const thisObj of this.physicsObjects) {
-            for (const otherObj of this.physicsObjects) {
+        for (let i = 0; i < this.physicsObjects.length; i++) {
+            const thisObj = this.physicsObjects[i];
+            for (let j = i + 1; j < this.physicsObjects.length; j++) {
+                const otherObj = this.physicsObjects[j];
+
                 if (!thisObj.canCollideWith(otherObj)) {
                     continue;
                 }
@@ -57,6 +60,13 @@ export class PhysicsEngine {
                     if (collisionInfo.mtv) {
                         collisionInfo.mtv.multiply(-1);
                     }
+
+                    // For debug purposes
+                    //
+                    // console.log(
+                    //     `Node "${thisObj.getName()}" collided with "${otherObj.getName()}"\nOverlapping: ${collisionInfo.overlap}`,
+                    // );
+
                     otherObj.onCollision(thisObj, collisionInfo);
                 }
             }

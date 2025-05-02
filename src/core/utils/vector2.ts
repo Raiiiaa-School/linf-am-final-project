@@ -2,12 +2,24 @@ export class Vector2 {
     public x: number;
     public y: number;
 
-    public static ZERO = new Vector2(0, 0);
-    public static ONE = new Vector2(1, 1);
-    public static UP = new Vector2(0, 1);
-    public static DOWN = new Vector2(0, -1);
-    public static LEFT = new Vector2(-1, 0);
-    public static RIGHT = new Vector2(1, 0);
+    public static get ZERO() {
+        return new Vector2(0, 0);
+    }
+    public static get ONE() {
+        return new Vector2(1, 1);
+    }
+    public static get UP() {
+        return new Vector2(0, -1);
+    }
+    public static get DOWN() {
+        return new Vector2(0, 1);
+    }
+    public static get LEFT() {
+        return new Vector2(-1, 0);
+    }
+    public static get RIGHT() {
+        return new Vector2(1, 0);
+    }
 
     constructor(x: number = 0, y: number = 0) {
         this.x = x;
@@ -50,7 +62,10 @@ export class Vector2 {
 
     public normalize(): Vector2 {
         const length = this.length();
-        return new Vector2(this.x / length, this.y / length);
+        if (length === 0) {
+            return this;
+        }
+        return this.divide(length);
     }
 
     public dot(other: Vector2): number {
@@ -81,7 +96,7 @@ export class Vector2 {
         return Math.acos(dotProduct / lengthProduct);
     }
 
-    public distanceSquaredTo(other: Vector2): number {
+    public magnitude(other: Vector2): number {
         const dx = this.x - other.x;
         const dy = this.y - other.y;
         return dx * dx + dy * dy;

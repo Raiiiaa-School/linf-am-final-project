@@ -94,7 +94,6 @@ export class Shape implements Shaper {
             min = Math.min(min, projection);
             max = Math.max(max, projection);
         }
-
         return [min, max];
     }
 }

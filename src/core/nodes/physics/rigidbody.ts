@@ -2,6 +2,7 @@ import { CollisionInfo } from "src/core/utils/collision";
 import { Vector2 } from "../../utils/vector2";
 import { PhysicsObject, PhysicsObjectSettings } from "./physics-object";
 import { StaticBody } from "./staticbody";
+import { Node2D } from "../node";
 
 export class RigidBody extends PhysicsObject {
     constructor(settings?: RigidBodySettings) {
@@ -9,89 +10,81 @@ export class RigidBody extends PhysicsObject {
         this.name = settings?.name ?? "Rigidbody";
     }
 
-    public updatePhysics(delta: number): void {
-        if (this.useGravity && !this.isGrounded) {
-            const newVelY = this.velocity.y + this.gravity.y * delta;
-            this.velocity.y = Math.min(newVelY, this.MAX_FALL_SPEED);
-        }
-
-        this.velocity.add(this.acceleration.clone().multiply(delta));
-        this.velocity.multiply(1 - this.friction * delta);
-
-        const movement = this.velocity.clone().multiply(delta);
-        this.position.add(movement);
-
-        this._physicsProcess(delta);
-    }
-
     public onCollision(
         other: PhysicsObject,
         collisionInfo: CollisionInfo,
     ): void {
         if (!collisionInfo.mtv) return;
-
-        if (other instanceof StaticBody) {
-            // Handle collision with static body
-            this.handleStaticCollision(collisionInfo);
-        } else if (other instanceof RigidBody) {
-            // Handle collision with another rigidbody
-            this.handleDynamicCollision(other, collisionInfo);
-        }
+        this.checkFloorCollision(other, collisionInfo);
+        this.handleCollision(other, collisionInfo);
     }
 
-    private handleStaticCollision(collisionInfo: CollisionInfo): void {
-        if (!collisionInfo.mtv) return;
-
-        this.position.subtract(collisionInfo.mtv);
-        const normal = collisionInfo.mtv.normalize();
-
-        this.checkFloorCollision(collisionInfo);
-
-        if (this.isGrounded) {
-            if (this.velocity.y > 0) {
-                this.velocity.y = 0;
-            }
+    private handleCollision(
+        other: PhysicsObject,
+        collisionInfo: CollisionInfo,
+    ): void {
+        if (!collisionInfo.mtv) {
             return;
         }
 
-        const velocityAlongNormal = this.velocity.clone().dot(normal);
-        if (velocityAlongNormal < 0) {
-            const bounceVelocity = normal
-                .clone()
-                .multiply(velocityAlongNormal * 1 + this.bounciness);
-            this.velocity.subtract(bounceVelocity);
-        }
+        const thisMass = this.mass;
+        const otherMass = other.getMass();
+
+        const thisVelocity = this.velocity.clone();
+        const otherVelocity = other.getVelocity().clone();
+
+        const collisionNormal = collisionInfo.mtv.clone().normalize();
+        const relativeVelocity = thisVelocity
+            .clone()
+            .subtract(otherVelocity)
+            .dot(collisionNormal);
+
+        const impulseMagnitude =
+            (-2 * relativeVelocity) / (1 / thisMass + 1 / otherMass);
+
+        const impulseVector = collisionNormal
+            .clone()
+            .multiply(impulseMagnitude);
+
+        this.resolvePenetration(this, other, collisionInfo);
+
+        this.velocity.add(impulseVector.clone().divide(thisMass));
+        other
+            .getVelocity()
+            .add(impulseVector.clone().divide(otherMass).multiply(-1));
     }
 
-    private handleDynamicCollision(
-        other: RigidBody,
+    private resolvePenetration(
+        thisObj: Node2D,
+        otherObj: PhysicsObject,
         collisionInfo: CollisionInfo,
-    ): void {
-        if (!collisionInfo.mtv) return;
+    ) {
+        if (!collisionInfo.mtv) {
+            return;
+        }
 
-        const totalMass = this.mass + other.mass;
-        const thisRatio = this.mass / totalMass;
-        const otherRatio = other.mass / totalMass;
+        let thisNode: Node2D | undefined = this;
+        while (thisNode?.getParent()) {
+            thisNode = thisNode.getParent();
+        }
 
-        // Separate objects
-        const separation = collisionInfo.mtv;
-        this.position.subtract(separation.multiply(thisRatio));
-        other.position.add(separation.multiply(otherRatio));
+        if (!thisNode) {
+            return;
+        }
 
-        // Calculate collision response
-        const normal = collisionInfo.mtv.normalize();
-        const relativeVelocity = this.velocity.clone().subtract(other.velocity);
-        const velocityAlongNormal = relativeVelocity.dot(normal);
+        let otherNode: Node2D | undefined = otherObj;
+        while (otherNode?.getParent()) {
+            otherNode = otherNode.getParent();
+        }
 
-        if (velocityAlongNormal > 0) return;
+        if (!otherNode) {
+            return;
+        }
 
-        const restitution = Math.min(this.bounciness, other.bounciness);
-        const impulseStrength = -(1 + restitution) * velocityAlongNormal;
-        const impulse = normal.multiply(impulseStrength);
+        const halfMTV = collisionInfo.mtv.clone().divide(2);
 
-        // Apply impulse
-        this.velocity.subtract(impulse.multiply(1 / this.mass));
-        other.velocity.add(impulse.multiply(1 / other.mass));
+        thisObj.position.subtract(halfMTV);
+        otherNode.position.add(halfMTV);
     }
 
     protected _physicsProcess(delta: number): void {}

@@ -19,6 +19,8 @@ export class TestScene {
             name: "Player",
             position: new Vector2(150, 0),
             mass: 2,
+            bounciness: 0,
+            friction: 0.1,
         })
             .addChild(
                 new Sprite({
@@ -28,9 +30,25 @@ export class TestScene {
             .addChild(new CollisionShape({ shape: Shape.Rectangle(50, 50) }));
         this.rootNode = new Node2D()
             .addChild(
+                new RigidBody({
+                    name: "Trash",
+                    position: new Vector2(150, 100),
+                    mass: 1,
+                    bounciness: 1,
+                    friction: 0.1,
+                })
+                    .addChild(
+                        new Sprite({
+                            texture: Texture.fromColor(Colors.ORANGE, 30, 30),
+                        }),
+                    )
+                    .addChild(
+                        new CollisionShape({ shape: Shape.Rectangle(30, 30) }),
+                    ),
+            )
+            .addChild(
                 new StaticBody({
                     position: new Vector2(250, 500),
-                    mass: 10,
                 })
                     .addChild(
                         new Sprite({

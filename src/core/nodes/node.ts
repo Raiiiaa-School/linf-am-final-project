@@ -90,6 +90,10 @@ export class Node2D {
         return this.searchNode(name);
     }
 
+    public getName(): string {
+        return this.name;
+    }
+
     private searchNode(name: string): Node2D | undefined {
         if (this.name === name) {
             return this;

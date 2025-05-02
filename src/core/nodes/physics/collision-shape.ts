@@ -15,7 +15,7 @@ export class CollisionShape extends Node2D {
         super(settings);
         this.name = settings?.name ?? "CollisionShape";
         this.shape = settings.shape;
-        this.debug = settings.debug ?? true;
+        this.debug = settings.debug ?? false;
     }
 
     protected _init(): void {
@@ -131,7 +131,7 @@ export class CollisionShape extends Node2D {
         if (this.parent instanceof PhysicsObject) {
             if (this.parent.isOnFloor()) {
                 ctx.fillStyle = "green";
-                ctx.fillText("GROUNDED", this.position.x, this.position.y - 20);
+                ctx.fillText("GROUNDED", this.position.x, this.position.y - 50);
             }
 
             // Draw velocity vector
@@ -139,8 +139,8 @@ export class CollisionShape extends Node2D {
             ctx.beginPath();
             ctx.moveTo(this.position.x, this.position.y);
             ctx.lineTo(
-                this.parent.position.x + this.parent.getVelocity().x * 0.1,
-                this.parent.position.y + this.parent.getVelocity().y * 0.1,
+                this.parent.getVelocity().x * 0.1,
+                this.parent.getVelocity().y * 0.1,
             );
             ctx.stroke();
         }
