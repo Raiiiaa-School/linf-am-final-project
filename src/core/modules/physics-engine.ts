@@ -1,4 +1,5 @@
 import { Area } from "../nodes/physics/area";
+import { CollisionObject } from "../nodes/physics/collision-object";
 import { PhysicsObject } from "../nodes/physics/physics-object";
 
 export class PhysicsEngine {

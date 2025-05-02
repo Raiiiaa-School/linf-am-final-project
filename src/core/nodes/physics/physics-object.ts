@@ -2,6 +2,8 @@ import { PhysicsEngine } from "../../modules/physics-engine";
 import { Vector2 } from "../../utils/vector2";
 import { CollisionObject, CollisionObjectSettings } from "./collision-object";
 import { CollisionInfo } from "../../utils/collision";
+import { StaticBody } from "./staticbody";
+import { Node2D } from "../node";
 
 export abstract class PhysicsObject extends CollisionObject {
     protected readonly MAX_FALL_SPEED: number = 1000;
@@ -16,6 +18,7 @@ export abstract class PhysicsObject extends CollisionObject {
     protected useGravity: boolean;
 
     protected isGrounded: boolean = false;
+    protected floorNormal = Vector2.DOWN;
 
     constructor(settings?: PhysicsObjectSettings) {
         super(settings);
@@ -82,12 +85,14 @@ export abstract class PhysicsObject extends CollisionObject {
     ): void;
 
     public updatePhysics(delta: number) {
-        if (this.useGravity && !this.isGrounded) {
+        if (this.useGravity) {
             const newVelY = this.velocity.y + this.gravity.y * delta;
             this.velocity.y = Math.min(newVelY, this.MAX_FALL_SPEED);
         }
 
-        this.velocity.add(this.acceleration.clone().multiply(delta));
+        this.velocity.add(
+            this.acceleration.clone().multiply(this.mass).multiply(delta),
+        );
         this.velocity.multiply(1 - this.friction * delta);
 
         const movement = this.velocity.clone().multiply(delta);

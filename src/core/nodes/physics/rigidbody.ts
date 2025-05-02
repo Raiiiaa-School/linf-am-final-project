@@ -3,6 +3,7 @@ import { Vector2 } from "../../utils/vector2";
 import { PhysicsObject, PhysicsObjectSettings } from "./physics-object";
 import { StaticBody } from "./staticbody";
 import { Node2D } from "../node";
+import { CharacterBody } from "./charactedbody";
 
 export class RigidBody extends PhysicsObject {
     constructor(settings?: RigidBodySettings) {
@@ -49,13 +50,18 @@ export class RigidBody extends PhysicsObject {
         this.resolvePenetration(this, other, collisionInfo);
 
         this.velocity.add(impulseVector.clone().divide(thisMass));
+
+        if (other instanceof StaticBody) {
+            return;
+        }
+
         other
             .getVelocity()
             .add(impulseVector.clone().divide(otherMass).multiply(-1));
     }
 
     private resolvePenetration(
-        thisObj: Node2D,
+        thisObj: PhysicsObject,
         otherObj: PhysicsObject,
         collisionInfo: CollisionInfo,
     ) {
@@ -84,7 +90,13 @@ export class RigidBody extends PhysicsObject {
         const halfMTV = collisionInfo.mtv.clone().divide(2);
 
         thisObj.position.subtract(halfMTV);
-        otherNode.position.add(halfMTV);
+
+        if (
+            !(otherObj instanceof StaticBody) &&
+            !(otherObj instanceof CharacterBody)
+        ) {
+            otherNode.position.add(halfMTV);
+        }
     }
 
     protected _physicsProcess(delta: number): void {}

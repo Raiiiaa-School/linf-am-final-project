@@ -9,16 +9,16 @@ import { Shape } from "../core/utils/shape";
 import { StaticBody } from "../core/nodes/physics/staticbody";
 import { Colors } from "../core/constants/colors";
 import { PhysicsEngine } from "../core/modules/physics-engine";
+import { CharacterBody } from "../core/nodes/physics/charactedbody";
 
 export class TestScene {
     private rootNode: Node2D;
     private player: Node2D;
 
     constructor() {
-        this.player = new RigidBody({
+        this.player = new CharacterBody({
             name: "Player",
             position: new Vector2(150, 0),
-            mass: 2,
             bounciness: 0,
             friction: 0.1,
         })

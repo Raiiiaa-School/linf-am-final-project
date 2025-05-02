@@ -15,7 +15,7 @@ export class CollisionShape extends Node2D {
         super(settings);
         this.name = settings?.name ?? "CollisionShape";
         this.shape = settings.shape;
-        this.debug = settings.debug ?? false;
+        this.debug = settings.debug ?? true;
     }
 
     protected _init(): void {
