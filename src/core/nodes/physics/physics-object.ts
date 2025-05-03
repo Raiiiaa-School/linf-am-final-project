@@ -1,4 +1,4 @@
-import { PhysicsEngine } from "../../modules/physics-engine";
+import { PhysicsEngine } from "../../systems/physics-engine";
 import { Vector2 } from "../../utils/vector2";
 import { CollisionObject, CollisionObjectSettings } from "./collision-object";
 import { CollisionInfo } from "../../utils/collision";

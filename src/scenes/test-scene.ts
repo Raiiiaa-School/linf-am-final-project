@@ -8,7 +8,7 @@ import { CollisionShape } from "../core/nodes/physics/collision-shape";
 import { Shape } from "../core/utils/shape";
 import { StaticBody } from "../core/nodes/physics/staticbody";
 import { Colors } from "../core/constants/colors";
-import { PhysicsEngine } from "../core/modules/physics-engine";
+import { PhysicsEngine } from "../core/systems/physics-engine";
 import { CharacterBody } from "../core/nodes/physics/charactedbody";
 
 export class TestScene {
