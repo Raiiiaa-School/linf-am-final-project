@@ -18,9 +18,9 @@ export class TestScene {
     constructor() {
         this.player = new CharacterBody({
             name: "Player",
-            position: new Vector2(150, 0),
+            position: new Vector2(185, 0),
             bounciness: 0,
-            friction: 0.1,
+            mass: 1,
         })
             .addChild(
                 new Sprite({
@@ -34,7 +34,7 @@ export class TestScene {
                     name: "Trash",
                     position: new Vector2(150, 100),
                     mass: 1,
-                    bounciness: 1,
+                    bounciness: 0,
                     friction: 0.1,
                 })
                     .addChild(
@@ -48,16 +48,16 @@ export class TestScene {
             )
             .addChild(
                 new StaticBody({
-                    position: new Vector2(250, 500),
+                    position: new Vector2(300, 500),
                 })
                     .addChild(
                         new Sprite({
-                            texture: Texture.fromColor(Colors.PINK, 250, 100),
+                            texture: Texture.fromColor(Colors.PINK, 600, 100),
                         }),
                     )
                     .addChild(
                         new CollisionShape({
-                            shape: Shape.Rectangle(250, 100),
+                            shape: Shape.Rectangle(600, 100),
                         }),
                     ),
             )

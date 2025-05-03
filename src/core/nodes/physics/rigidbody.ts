@@ -40,8 +40,11 @@ export class RigidBody extends PhysicsObject {
             .subtract(otherVelocity)
             .dot(collisionNormal);
 
+        const bounceForce = Math.min(this.bounciness, other.getBounciness());
+
         const impulseMagnitude =
-            (-2 * relativeVelocity) / (1 / thisMass + 1 / otherMass);
+            (-(1 + bounceForce) * relativeVelocity) /
+            (1 / thisMass + 1 / otherMass);
 
         const impulseVector = collisionNormal
             .clone()
