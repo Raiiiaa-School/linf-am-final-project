@@ -1,15 +1,15 @@
-import { Vector2 } from "../core/utils/vector2";
-import { Camera } from "../core/nodes/camera";
-import { Node2D } from "../core/nodes/node";
-import { Sprite } from "../core/nodes/sprite";
-import { Texture } from "../core/utils/texture";
-import { RigidBody } from "../core/nodes/physics/rigidbody";
-import { CollisionShape } from "../core/nodes/physics/collision-shape";
-import { Shape } from "../core/utils/shape";
-import { StaticBody } from "../core/nodes/physics/staticbody";
-import { Colors } from "../core/constants/colors";
-import { PhysicsEngine } from "../core/systems/physics-engine";
-import { CharacterBody } from "../core/nodes/physics/charactedbody";
+import { Vector2 } from "../../core/utils/vector2";
+import { Camera } from "../../core/nodes/camera";
+import { Node2D } from "../../core/nodes/node";
+import { Sprite } from "../../core/nodes/sprite";
+import { Texture } from "../../core/utils/texture";
+import { RigidBody } from "../../core/nodes/physics/rigidbody";
+import { CollisionShape } from "../../core/nodes/physics/collision-shape";
+import { Shape } from "../../core/utils/shape";
+import { StaticBody } from "../../core/nodes/physics/staticbody";
+import { Colors } from "../../core/constants/colors";
+import { PhysicsEngine } from "../../core/systems/physics-engine";
+import { CharacterBody } from "../../core/nodes/physics/charactedbody";
 
 export class TestScene {
     private rootNode: Node2D;

@@ -1,4 +1,4 @@
-import { TestScene } from "./scenes/test-scene";
+import { TestScene } from "./game/scenes/test-scene";
 
 const canvas = document.querySelector("canvas#game") as HTMLCanvasElement;
 canvas.width = innerWidth;
