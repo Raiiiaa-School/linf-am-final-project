@@ -1,6 +1,7 @@
 import { Vector2 } from "../utils/vector2";
 
 export class Input {
+    private static instance: Input;
     private static pressedKeys: Set<string>;
     private static pressedButtons: Set<number>;
     private static mousePosition: Vector2;
@@ -71,60 +72,84 @@ export class Input {
         MENU: Input.KEYS.TAB,
     };
 
-    constructor() {
+    private constructor() {
         Input.pressedKeys = new Set();
         Input.pressedButtons = new Set();
         Input.mousePosition = new Vector2(0, 0);
 
-        window.addEventListener("keydown", this.handleKeyDown.bind(this));
-        window.addEventListener("keyup", this.handleKeyUp.bind(this));
-        window.addEventListener("mousemove", this.handleMouseMove.bind(this));
-        window.addEventListener("mousedown", this.handleMouseDown.bind(this));
-        window.addEventListener("mouseup", this.handleMouseUp.bind(this));
+        window.addEventListener("keydown", Input.handleKeyDown.bind(Input));
+        window.addEventListener("keyup", Input.handleKeyUp.bind(Input));
+        window.addEventListener("mousemove", Input.handleMouseMove.bind(Input));
+        window.addEventListener("mousedown", Input.handleMouseDown.bind(Input));
+        window.addEventListener("mouseup", Input.handleMouseUp.bind(Input));
         window.addEventListener(
             "contextmenu",
-            this.handleContextMenu.bind(this),
+            Input.handleContextMenu.bind(Input),
         );
     }
 
-    private handleKeyDown(event: KeyboardEvent) {
+    public static initialize(): Input {
+        if (!this.instance) {
+            this.instance = new Input();
+        }
+        return this.instance;
+    }
+
+    private static handleKeyDown(event: KeyboardEvent) {
         Input.pressedKeys.add(event.key);
     }
 
-    private handleKeyUp(event: KeyboardEvent) {
+    private static handleKeyUp(event: KeyboardEvent) {
         Input.pressedKeys.delete(event.key);
     }
 
-    private handleMouseMove(event: MouseEvent) {
+    private static handleMouseMove(event: MouseEvent) {
         Input.mousePosition.x = event.clientX;
         Input.mousePosition.y = event.clientY;
     }
 
-    private handleMouseDown(event: MouseEvent) {
+    private static handleMouseDown(event: MouseEvent) {
         Input.pressedButtons.add(event.button);
     }
 
-    private handleMouseUp(event: MouseEvent) {
+    private static handleMouseUp(event: MouseEvent) {
         Input.pressedButtons.delete(event.button);
     }
 
-    private handleContextMenu(event: MouseEvent) {
+    private static handleContextMenu(event: MouseEvent) {
         event.preventDefault();
     }
 
-    public getMousePosition(): Vector2 {
+    public static getMousePosition(): Vector2 {
         return Input.mousePosition;
     }
 
-    public isKeyPressed(key: keyof typeof Input.KEYS): boolean {
-        return Input.pressedKeys.has(key);
+    public static getAxis(
+        negative: keyof typeof Input.ACTIONS,
+        positive: keyof typeof Input.ACTIONS,
+    ): number {
+        const positiveAction = Input.ACTIONS[positive];
+        const negativeAction = Input.ACTIONS[negative];
+
+        let axisValue = 0;
+        if (Input.pressedKeys.has(positiveAction)) {
+            axisValue += 1;
+        }
+        if (Input.pressedKeys.has(negativeAction)) {
+            axisValue -= 1;
+        }
+        return axisValue;
     }
 
-    public isActionPressed(action: keyof typeof Input.ACTIONS): boolean {
-        return Input.pressedKeys.has(action);
+    public static isKeyPressed(key: keyof typeof Input.KEYS): boolean {
+        return Input.pressedKeys.has(Input.KEYS[key]);
     }
 
-    public isMouseButtonPressed(button: number): boolean {
+    public static isActionPressed(action: keyof typeof Input.ACTIONS): boolean {
+        return Input.pressedKeys.has(Input.ACTIONS[action]);
+    }
+
+    public static isMouseButtonPressed(button: number): boolean {
         return Input.pressedButtons.has(button);
     }
 }

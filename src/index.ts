@@ -1,14 +1,14 @@
+import { Input } from "./core/systems/inputs";
 import { TestScene } from "./game/scenes/test-scene";
 
 const canvas = document.querySelector("canvas#game") as HTMLCanvasElement;
 canvas.width = innerWidth;
 canvas.height = innerHeight;
-
-// importd the assets têm que ser a usar URL para o webpack conseguir buildar os assets.
-
 const ctx = canvas.getContext("2d");
 
 const scene = new TestScene();
+
+Input.initialize();
 
 let lastTime = 0;
 

@@ -102,7 +102,10 @@ export class RigidBody extends PhysicsObject {
         }
     }
 
-    protected _physicsProcess(delta: number): void {}
+    protected _physicsProcess(delta: number): void {
+        const movement = this.velocity.clone().multiply(delta);
+        this.position.add(movement);
+    }
 }
 
 export interface RigidBodySettings extends PhysicsObjectSettings {

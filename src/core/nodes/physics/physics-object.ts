@@ -6,7 +6,7 @@ import { StaticBody } from "./staticbody";
 import { Node2D } from "../node";
 
 export abstract class PhysicsObject extends CollisionObject {
-    protected readonly MAX_FALL_SPEED: number = 1000;
+    protected readonly MAX_FALL_SPEED: number = 2500;
 
     protected velocity: Vector2;
     protected acceleration: Vector2;
@@ -34,7 +34,7 @@ export abstract class PhysicsObject extends CollisionObject {
     }
 
     public applyForce(force: Vector2) {
-        // F = ma so a = F/m
+        // F = ma entao a = F/m
         const appliedForce = force.divide(this.mass);
         this.acceleration.add(appliedForce);
     }
@@ -79,6 +79,17 @@ export abstract class PhysicsObject extends CollisionObject {
         }
     }
 
+    protected moveTowards(from: number, to: number, delta: number): number {
+        if (Math.abs(to - from) <= delta) {
+            return to;
+        }
+        if (from < to) {
+            return from + delta;
+        } else {
+            return from - delta;
+        }
+    }
+
     public abstract onCollision(
         other: PhysicsObject,
         collisionInfo: CollisionInfo,
@@ -94,10 +105,7 @@ export abstract class PhysicsObject extends CollisionObject {
             this.acceleration.clone().multiply(this.mass).multiply(delta),
         );
         this.velocity.multiply(1 - this.friction * delta);
-
-        const movement = this.velocity.clone().multiply(delta);
-        this.position.add(movement);
-
+        this.velocity.x = this.moveTowards(this.velocity.x, 0, this.friction);
         this.isGrounded = false;
 
         this._physicsProcess(delta);

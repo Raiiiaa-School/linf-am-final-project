@@ -10,17 +10,18 @@ import { StaticBody } from "../../core/nodes/physics/staticbody";
 import { Colors } from "../../core/constants/colors";
 import { PhysicsEngine } from "../../core/systems/physics-engine";
 import { CharacterBody } from "../../core/nodes/physics/charactedbody";
+import { Player } from "./characters/player/player";
 
 export class TestScene {
     private rootNode: Node2D;
     private player: Node2D;
 
     constructor() {
-        this.player = new CharacterBody({
+        this.player = new Player({
             name: "Player",
-            position: new Vector2(185, 0),
-            bounciness: 0,
-            mass: 1,
+            position: new Vector2(150, 0),
+            bounciness: 2,
+            mass: 2,
         })
             .addChild(
                 new Sprite({
@@ -34,7 +35,7 @@ export class TestScene {
                     name: "Trash",
                     position: new Vector2(150, 100),
                     mass: 1,
-                    bounciness: 0,
+                    bounciness: 10,
                     friction: 0.1,
                 })
                     .addChild(

@@ -30,6 +30,14 @@ export class CharacterBody extends PhysicsObject {
         this.resolvePenetration(this, other, collisionInfo);
     }
 
+    protected moveAndSlide(deltaTime: number) {
+        this.move(deltaTime);
+    }
+
+    protected move(deltaTime: number) {
+        this.position.add(this.velocity.multiply(deltaTime));
+    }
+
     private resolvePenetration(
         thisObj: PhysicsObject,
         otherObj: PhysicsObject,
