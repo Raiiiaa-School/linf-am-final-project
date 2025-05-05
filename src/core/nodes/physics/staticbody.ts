@@ -1,4 +1,3 @@
-import { CollisionInfo } from "src/core/utils/collision";
 import { Vector2 } from "../../utils/vector2";
 import { CollisionObject } from "./collision-object";
 import { PhysicsObject, PhysicsObjectSettings } from "./physics-object";
@@ -7,7 +6,7 @@ export class StaticBody extends PhysicsObject {
     constructor(settings?: StaticBodySettings) {
         super({
             ...settings,
-            mass: 10,
+            mass: Infinity,
             friction: 0,
             useGravity: false,
         });
@@ -22,10 +21,9 @@ export class StaticBody extends PhysicsObject {
 
     public applyForce(force: Vector2): void {}
 
-    public onCollision(
-        other: CollisionObject,
-        collisionInfo: CollisionInfo,
-    ): void {}
+    public isStatic(): boolean {
+        return true;
+    }
 }
 
 export interface StaticBodySettings extends PhysicsObjectSettings {}

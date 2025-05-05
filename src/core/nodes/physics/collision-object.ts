@@ -1,7 +1,5 @@
 import { CollisionShape } from "./collision-shape";
 import { Node2D, Node2DSettings } from "../node";
-import { Sprite } from "../sprite";
-import { CollisionInfo } from "src/core/utils/collision";
 
 export enum CollisionLayer {
     NONE = 0,
@@ -44,11 +42,6 @@ export abstract class CollisionObject extends Node2D {
         }
         return this.collisionShape;
     }
-
-    public abstract onCollision(
-        other: CollisionObject,
-        collisionInfo: CollisionInfo,
-    ): void;
 }
 
 export interface CollisionObjectSettings extends Node2DSettings {

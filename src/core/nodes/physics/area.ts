@@ -1,4 +1,4 @@
-import { PhysicsEngine } from "src/core/systems/physics-engine";
+import { PhysicsEngine } from "../../systems/physics-engine";
 import { CollisionObject, CollisionObjectSettings } from "./collision-object";
 
 export class Area extends CollisionObject {

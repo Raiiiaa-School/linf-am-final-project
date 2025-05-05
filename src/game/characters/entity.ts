@@ -1,7 +1,4 @@
-import {
-    CharacterBody,
-    CharacterBodySettings,
-} from "../../../core/nodes/physics/charactedbody";
+import { CharacterBody, CharacterBodySettings } from "../../core/nodes";
 
 export class Entity extends CharacterBody {
     constructor(settings: CharacterBodySettings) {

@@ -9,8 +9,7 @@ import { Shape } from "../../core/utils/shape";
 import { StaticBody } from "../../core/nodes/physics/staticbody";
 import { Colors } from "../../core/constants/colors";
 import { PhysicsEngine } from "../../core/systems/physics-engine";
-import { CharacterBody } from "../../core/nodes/physics/charactedbody";
-import { Player } from "./characters/player/player";
+import { Player } from "../characters/player/player";
 
 export class TestScene {
     private rootNode: Node2D;
@@ -33,7 +32,7 @@ export class TestScene {
             .addChild(
                 new RigidBody({
                     name: "Trash",
-                    position: new Vector2(150, 100),
+                    position: new Vector2(150, 0),
                     mass: 1,
                     bounciness: 10,
                     friction: 0.1,
