@@ -10,6 +10,10 @@ export class RigidBody extends PhysicsObject {
         const movement = this.velocity.clone().multiply(delta);
         this.position.add(movement);
     }
+
+    public isRigid(): boolean {
+        return true;
+    }
 }
 
 export interface RigidBodySettings extends PhysicsObjectSettings {

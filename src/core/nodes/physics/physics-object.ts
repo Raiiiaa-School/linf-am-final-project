@@ -7,9 +7,10 @@ import { Node2D } from "../node";
 import { Signal } from "../../utils";
 
 export abstract class PhysicsObject extends CollisionObject {
-    protected readonly MAX_FALL_SPEED: number = 2000;
+    protected readonly MAX_FALL_SPEED: number = 5000;
     protected readonly ANGULAR_DAMPING = 0.98;
 
+    protected previousPosition?: Vector2;
     protected velocity: Vector2;
     protected acceleration: Vector2;
     protected angularVelocity: number;
@@ -37,30 +38,12 @@ export abstract class PhysicsObject extends CollisionObject {
         this.mass = settings?.mass ?? 1;
         this.friction = settings?.friction ?? 0.5;
         this.bounciness = settings?.bounciness ?? 0.3;
-        this.gravity = settings?.gravity ?? new Vector2(0, 15000); // Default gravity
+        this.gravity = settings?.gravity ?? new Vector2(0, 980); // Default gravity
         this.useGravity = settings?.useGravity ?? true;
     }
 
-    protected _ready(): void {
+    protected _init(): void {
         PhysicsEngine.addPhysicsObject(this);
-    }
-
-    public applyForce(force: Vector2) {
-        if (this.isStatic()) return;
-        // F = ma entao a = F/m
-        const appliedForce = force.divide(this.mass);
-        this.acceleration.add(appliedForce);
-    }
-
-    public applyImpulse(impulse: Vector2): void {
-        if (this.isStatic()) return;
-        const appliedImpulse = impulse.divide(this.mass);
-        this.velocity.add(appliedImpulse);
-    }
-
-    public applyTorque(torque: number): void {
-        if (this.isStatic()) return;
-        this.angularVelocity += torque / this.mass;
     }
 
     public setPosition(position: Vector2): void {
@@ -72,7 +55,19 @@ export abstract class PhysicsObject extends CollisionObject {
     }
 
     public setVelocity(velocity: Vector2): void {
+        const maxSpeed = 1000;
+        if (velocity.length() > maxSpeed) {
+            velocity.normalize().multiply(maxSpeed);
+        }
         this.velocity = velocity.clone();
+    }
+
+    public getPreviousPosition(): Vector2 | undefined {
+        return this.previousPosition;
+    }
+
+    public setPreviousPosition(position: Vector2): void {
+        this.previousPosition = position;
     }
 
     public getMass(): number {
@@ -91,8 +86,33 @@ export abstract class PhysicsObject extends CollisionObject {
         return this.isGrounded;
     }
 
+    public isCharacter(): boolean {
+        return false;
+    }
+
+    public isRigid(): boolean {
+        return false;
+    }
+
     public isStatic(): boolean {
         return false;
+    }
+    public applyForce(force: Vector2) {
+        if (this.isStatic()) return;
+        // F = ma entao a = F/m
+        const appliedForce = force.divide(this.mass);
+        this.acceleration.add(appliedForce);
+    }
+
+    public applyImpulse(impulse: Vector2): void {
+        if (this.isStatic()) return;
+        const appliedImpulse = impulse.divide(this.mass);
+        this.velocity.add(appliedImpulse);
+    }
+
+    public applyTorque(torque: number): void {
+        if (this.isStatic()) return;
+        this.angularVelocity += torque / this.mass;
     }
 
     public checkFloorCollision(
@@ -104,7 +124,7 @@ export abstract class PhysicsObject extends CollisionObject {
         }
 
         const normal = collisionInfo.mtv.clone().normalize();
-        const upDot = normal.clone().dot(Vector2.UP);
+        const upDot = normal.clone().dot(Vector2.DOWN);
 
         if (upDot > this.groundedTolerance) {
             this.isGrounded = true;
@@ -131,7 +151,7 @@ export abstract class PhysicsObject extends CollisionObject {
     protected integrateVelocity(delta: number) {
         if (this.isStatic()) return;
 
-        const movement = this.velocity.multiply(delta);
+        const movement = this.velocity.clone().multiply(delta);
         this.position.add(movement);
 
         this.rotation += this.angularVelocity * delta;

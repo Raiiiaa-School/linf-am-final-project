@@ -22,15 +22,8 @@ export class CharacterBody extends PhysicsObject {
         );
     }
 
-    public canJump(): boolean {
-        return this.isGrounded;
-    }
-
-    public jump() {
-        if (this.canJump()) {
-            this.velocity.y = -this.jumpForce;
-            this.isGrounded = false;
-        }
+    public isCharacter(): boolean {
+        return true;
     }
 
     protected moveTowards(from: number, to: number, delta: number): number {
@@ -45,8 +38,8 @@ export class CharacterBody extends PhysicsObject {
         this.integrateVelocity(delta);
     }
 
-    protected move(deltaTime: number) {
-        this.position.add(this.velocity.multiply(deltaTime));
+    public updatePhysics(delta: number): void {
+        this._physicsProcess(delta);
     }
 }
 

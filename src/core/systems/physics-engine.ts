@@ -2,6 +2,7 @@ import { Vector2 } from "../utils/vector2";
 import { Area } from "../nodes/physics/area";
 import { PhysicsObject } from "../nodes/physics/physics-object";
 import { CollisionInfo } from "../utils";
+import { CharacterBody, RigidBody } from "../nodes";
 
 export class PhysicsEngine {
     private static physicsObjects: PhysicsObject[] = [];
@@ -12,6 +13,8 @@ export class PhysicsEngine {
     private static readonly GRID_SIZE = 100;
     private static readonly AIR_RESISTANCE = 0.02;
     private static readonly SUBSTEPS = 3;
+    private static readonly RESTITUTION = 0.2;
+    private static readonly VELOCITY_THRESHOLD = 300;
 
     public static addPhysicsObject(physicsObject: PhysicsObject): void {
         this.physicsObjects.push(physicsObject);
@@ -160,6 +163,11 @@ export class PhysicsEngine {
                 }
 
                 const velocity = obj.getVelocity();
+
+                if (velocity.length() > this.VELOCITY_THRESHOLD) {
+                    obj.setPreviousPosition(obj.position.clone());
+                }
+
                 const airResistance = velocity
                     .clone()
                     .multiply(-this.AIR_RESISTANCE * obj.getMass());
@@ -167,9 +175,8 @@ export class PhysicsEngine {
                 obj.updatePhysics(subDelta);
                 this.updateSpatialGrid(obj);
             });
+            this.resolveCollisions(subDelta);
         }
-
-        this.resolveCollisions(subDelta);
     }
 
     private static resolveCollisions(delta: number) {
@@ -210,104 +217,21 @@ export class PhysicsEngine {
             return;
         }
 
-        const relativeVel = objA
-            .getVelocity()
-            .clone()
-            .subtract(objB.getVelocity());
-        const normal = collision.mtv.clone().normalize();
-        const relativeSpeed = relativeVel.dot(normal);
+        objA.checkFloorCollision(objB, collision);
 
-        // Check if objects are moving away from each other
-        if (relativeSpeed < 0) {
-            return;
+        if (objA.isOnFloor()) {
+            const currentVel = objA.getVelocity();
+            objA.setVelocity(new Vector2(currentVel.x, 0));
         }
 
-        const massA = objA.getMass();
-        const massB = objB.getMass();
-        const restitution = Math.min(
-            objA.getBounciness(),
-            objB.getBounciness(),
-        );
-
-        if (objB.isStatic()) {
-            objA.setPosition(objA.getGlobalPosition().subtract(collision.mtv));
-
-            const impulse = -(1 + restitution) * relativeSpeed * massA;
-            const impulseVector = normal.multiply(impulse);
-            objA.setVelocity(
-                objA.getVelocity().add(impulseVector.multiply(1 / massA)),
-            );
+        if (objA.isCharacter() && objB.isRigid()) {
+            objB.setPosition(objB.position.add(collision.mtv));
+        } else if (objA.isRigid() && objB.isRigid()) {
+            const halfMtv = collision.mtv.clone().divide(2);
+            objA.setPosition(objA.position.subtract(halfMtv));
+            objB.setPosition(objB.position.add(halfMtv));
         } else {
-            const totalMass = massA + massB;
-            const ratioA = massB / totalMass;
-            const ratioB = massA / totalMass;
-
-            objA.setPosition(
-                objA
-                    .getGlobalPosition()
-                    .subtract(collision.mtv.clone().multiply(ratioA)),
-            );
-
-            objB.setPosition(
-                objB
-                    .getGlobalPosition()
-                    .add(collision.mtv.clone().multiply(ratioB)),
-            );
-
-            const impulse =
-                (-(1 + restitution) * relativeSpeed * (massA * massB)) /
-                totalMass;
-            const impulseVector = normal.multiply(impulse);
-
-            objA.setVelocity(
-                objA
-                    .getVelocity()
-                    .add(impulseVector.clone().multiply(1 / massA)),
-            );
-            objB.setVelocity(
-                objB
-                    .getVelocity()
-                    .subtract(impulseVector.clone().multiply(1 / massB)),
-            );
+            objA.setPosition(objA.position.subtract(collision.mtv));
         }
-
-        // Apply friction
-        const friction = Math.min(objA.getFriction(), objB.getFriction());
-        if (friction > 0) {
-            const tangent = new Vector2(-normal.y, normal.x);
-            const relativeTangentSpeed = relativeVel.dot(tangent);
-            const frictionImpulse = -relativeTangentSpeed * friction;
-
-            if (objB.isStatic()) {
-                objA.setVelocity(
-                    objA.getVelocity().add(tangent.multiply(frictionImpulse)),
-                );
-            } else {
-                objA.setVelocity(
-                    objA
-                        .getVelocity()
-                        .add(
-                            tangent.multiply(
-                                (frictionImpulse * massB) / (massA + massB),
-                            ),
-                        ),
-                );
-                objB.setVelocity(
-                    objB
-                        .getVelocity()
-                        .subtract(
-                            tangent.multiply(
-                                (frictionImpulse * massA) / (massA + massB),
-                            ),
-                        ),
-                );
-            }
-        }
-
-        // objA.onCollision(objB, collision);
-        // objB.onCollision(objA, {
-        //     ...collision,
-        //     mtv: collision.mtv.multiply(-1),
-        // });
     }
 }

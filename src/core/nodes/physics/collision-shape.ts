@@ -77,6 +77,42 @@ export class CollisionShape extends Node2D {
         };
     }
 
+    public checkPoint(point: Vector2, transform: Transform): boolean {
+        let inside = false;
+        const vertices = this.shape.getVertices();
+        const numVertices = vertices.length;
+
+        // We need the vertices in world space
+        const worldVertices = this.shape
+            .getVertices()
+            .map(
+                (vertex) =>
+                    new Vector2(
+                        vertex.x + transform.position.x,
+                        vertex.y + transform.position.y,
+                    ),
+            );
+
+        for (let i = 0, j = numVertices - 1; i < numVertices; j = i++) {
+            const vert1 = vertices[i];
+            const vert2 = vertices[j];
+
+            const intersect =
+                vert1.y > point.y !== vert2.y > point.y &&
+                point.x <
+                    ((vert2.x - vert1.x) * (point.y - vert1.y)) /
+                        (vert2.y - vert1.y) +
+                        vert1.x;
+
+            if (intersect) {
+                inside = true;
+                return inside;
+            }
+        }
+
+        return inside;
+    }
+
     protected _draw(ctx: CanvasRenderingContext2D): void {
         if (!this.debug) {
             return;

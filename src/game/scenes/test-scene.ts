@@ -32,7 +32,7 @@ export class TestScene {
             .addChild(
                 new RigidBody({
                     name: "Trash",
-                    position: new Vector2(150, 0),
+                    position: new Vector2(150, 100),
                     mass: 1,
                     bounciness: 10,
                     friction: 0.1,

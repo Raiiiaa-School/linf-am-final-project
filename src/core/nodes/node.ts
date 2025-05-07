@@ -144,8 +144,10 @@ export class Node2D {
     }
 
     public initialize(): void {
-        this._ready();
+        this._init();
+        this.children.forEach((child) => child._init());
 
+        this._ready();
         this.children.forEach((child) => child._ready());
     }
 
