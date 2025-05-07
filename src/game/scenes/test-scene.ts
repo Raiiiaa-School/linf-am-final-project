@@ -14,8 +14,14 @@ import PlayerScene from "../characters/player/player.scene";
 
 export class TestScene {
     private rootNode: Node2D;
+    image = new Image();
 
     constructor() {
+        this.image.src = new URL(
+            "../../assets/characters/Shinobi/Idle.png",
+            import.meta.url,
+        ).toString();
+
         this.rootNode = new Node2D()
             .addChild(
                 new RigidBody({
@@ -55,9 +61,7 @@ export class TestScene {
     start() {
         return new Promise<void>((resolve) => {
             this.rootNode.initialize();
-            setTimeout(() => {
-                resolve();
-            }, 500);
+            resolve();
         });
     }
 
@@ -65,5 +69,26 @@ export class TestScene {
         PhysicsEngine.update(delta);
         this.rootNode.update(delta);
         this.rootNode.draw(ctx);
+
+        const currentFrame = 0;
+        const x = 100;
+        const w = 200;
+        const h = 200;
+
+        const position = new Vector2(100, 100);
+        ctx.drawImage(
+            this.image,
+            Math.floor(this.image.width / 6) * currentFrame,
+            0,
+            this.image.width / 6,
+            this.image.height,
+            position.x + x,
+            position.y + 0,
+            w,
+            h,
+        );
+
+        ctx.strokeStyle = "black";
+        ctx.strokeRect(position.x + x, position.y + 0, w, h);
     }
 }
