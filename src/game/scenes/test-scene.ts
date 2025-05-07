@@ -10,24 +10,12 @@ import { StaticBody } from "../../core/nodes/physics/staticbody";
 import { Colors } from "../../core/constants/colors";
 import { PhysicsEngine } from "../../core/systems/physics-engine";
 import { Player } from "../characters/player/player";
+import PlayerScene from "../characters/player/player.scene";
 
 export class TestScene {
     private rootNode: Node2D;
-    private player: Node2D;
 
     constructor() {
-        this.player = new Player({
-            name: "Player",
-            position: new Vector2(150, 0),
-            bounciness: 2,
-            mass: 2,
-        })
-            .addChild(
-                new Sprite({
-                    texture: Texture.fromColor(Colors.RED, 50, 50),
-                }),
-            )
-            .addChild(new CollisionShape({ shape: Shape.Rectangle(50, 50) }));
         this.rootNode = new Node2D()
             .addChild(
                 new RigidBody({
@@ -61,7 +49,7 @@ export class TestScene {
                         }),
                     ),
             )
-            .addChild(this.player);
+            .addChild(PlayerScene);
     }
 
     start() {

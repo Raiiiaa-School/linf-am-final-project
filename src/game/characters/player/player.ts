@@ -59,6 +59,6 @@ export class Player extends Entity {
     }
 
     protected didIDie(): void {
-        console.log("I died");
+        alert("Morri");
     }
 }
