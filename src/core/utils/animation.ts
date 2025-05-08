@@ -16,6 +16,8 @@ export interface SpriteSheetCropOptions {
     frameCount: number;
     size?: Vector2;
     offset?: Vector2;
+    start?: number;
+    end?: number;
 }
 
 export interface CropOptions {

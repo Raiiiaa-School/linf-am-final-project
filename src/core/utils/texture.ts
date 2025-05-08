@@ -1,5 +1,6 @@
 import { CropOptions, SpriteSheetCropOptions } from "./animation";
 import { Color } from "./color";
+import { Vector2 } from "./vector2";
 
 export class Texture {
     private image: HTMLImageElement | undefined;
@@ -8,6 +9,7 @@ export class Texture {
     private width: number = 0;
     private height: number = 0;
     private loaded: boolean = false;
+    private flip = Vector2.ONE;
 
     static fromImage(url: URL, width?: number, height?: number): Texture {
         const texture = new Texture();
@@ -28,7 +30,12 @@ export class Texture {
         options: SpriteSheetCropOptions,
     ): Texture[] {
         const textures: Texture[] = [];
-        for (let i = 0; i < options.frameCount; i++) {
+
+        const start = options.start ?? 0;
+        const end = options.end ?? options.frameCount - 1;
+        let animationFrameCount = end - start;
+
+        for (let i = 0; i < animationFrameCount + 1; i++) {
             const texture = new Texture();
             const image = new Image();
 
@@ -39,9 +46,12 @@ export class Texture {
                 texture.loaded = true;
 
                 texture.cropOptions = {
-                    x: Math.floor(image.width / 6) * i,
-                    y: 0,
-                    w: image.width / 6,
+                    x:
+                        Math.floor(image.width / options.frameCount) *
+                            (i + start) +
+                        (options.offset ? -options.offset.x : 0),
+                    y: 0 + (options.offset ? -options.offset.y : 0),
+                    w: image.width / options.frameCount,
                     h: image.height,
                 };
             };
@@ -84,18 +94,25 @@ export class Texture {
         this.cropOptions = options;
     }
 
-    clone() {
-        const clone = new Texture();
-        clone.image = this.image;
-        clone.color = this.color;
-        clone.width = this.width;
-        clone.height = this.height;
-        clone.loaded = this.loaded;
-        return clone;
+    flipHorizontal(reset: boolean = false) {
+        this.flip.x = -1;
+        if (reset) {
+            this.flip.y = 1;
+        }
+    }
+
+    flipVertical(reset: boolean = false) {
+        this.flip.y = -1;
+        if (reset) {
+            this.flip.x = 1;
+        }
     }
 
     render(ctx: CanvasRenderingContext2D) {
         if (!this.loaded) return;
+
+        ctx.save();
+        ctx.scale(this.flip.x, this.flip.y);
 
         if (this.image) {
             if (this.cropOptions) {
@@ -130,5 +147,6 @@ export class Texture {
             );
             ctx.fillStyle = previousFillStyle;
         }
+        ctx.restore();
     }
 }

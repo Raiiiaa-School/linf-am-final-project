@@ -70,25 +70,25 @@ export class TestScene {
         this.rootNode.update(delta);
         this.rootNode.draw(ctx);
 
-        const currentFrame = 0;
-        const x = 100;
-        const w = 200;
-        const h = 200;
+        // const currentFrame = 0;
+        // const x = 100;
+        // const w = 200;
+        // const h = 200;
 
-        const position = new Vector2(100, 100);
-        ctx.drawImage(
-            this.image,
-            Math.floor(this.image.width / 6) * currentFrame,
-            0,
-            this.image.width / 6,
-            this.image.height,
-            position.x + x,
-            position.y + 0,
-            w,
-            h,
-        );
+        // const position = new Vector2(100, 100);
+        // ctx.drawImage(
+        //     this.image,
+        //     Math.floor(this.image.width / 6) * currentFrame,
+        //     0,
+        //     this.image.width / 6,
+        //     this.image.height,
+        //     position.x + x,
+        //     position.y + 0,
+        //     w,
+        //     h,
+        // );
 
-        ctx.strokeStyle = "black";
-        ctx.strokeRect(position.x + x, position.y + 0, w, h);
+        // ctx.strokeStyle = "black";
+        // ctx.strokeRect(position.x + x, position.y + 0, w, h);
     }
 }

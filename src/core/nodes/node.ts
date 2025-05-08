@@ -83,7 +83,11 @@ export class Node2D {
         return this.parent;
     }
 
-    public getNode(name: string): Node2D | undefined {
+    public getNode<T extends Node2D = Node2D>(name: string): T | undefined {
+        if (this.name === name) {
+            return this as any;
+        }
+
         if (this.parent) {
             return this.parent.getNode(name);
         }
@@ -94,15 +98,15 @@ export class Node2D {
         return this.name;
     }
 
-    private searchNode(name: string): Node2D | undefined {
+    private searchNode<T extends Node2D = Node2D>(name: string): T | undefined {
         if (this.name === name) {
-            return this;
+            return this as any;
         }
 
         const node = this.searchedNodes.find((node) => node.name === name);
 
         if (node) {
-            return node;
+            return node as any;
         }
 
         for (let i = 0; i < this.children.length; i++) {
@@ -110,7 +114,7 @@ export class Node2D {
             const found = child.searchNode(name);
             if (found) {
                 this.searchedNodes.push(found);
-                return found;
+                return found as any;
             }
         }
 
