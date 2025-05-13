@@ -15,8 +15,8 @@ export enum CollisionLayer {
 }
 
 export abstract class CollisionObject extends Node2D {
-    private collisionLayer: CollisionLayer;
-    private collisionMask: CollisionLayer;
+    private collisionLayer: CollisionLayer; // Collision layer to be
+    private collisionMask: CollisionLayer; // Collision layer to see
     private collisionShape: CollisionShape | undefined;
 
     constructor(settings?: CollisionObjectSettings) {

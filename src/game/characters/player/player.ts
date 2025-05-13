@@ -3,6 +3,7 @@ import { Entity } from "../entity";
 import { Vector2 } from "../../../core/utils";
 import { Input } from "../../../core/systems";
 import { AnimatedSprite } from "src/core/nodes/animated-sprite";
+import { Area } from "src/core/nodes";
 
 export class Player extends Entity {
     private readonly SPEED = 200;
@@ -12,18 +13,24 @@ export class Player extends Entity {
     private readonly AIR_CONTROL = 0.3;
 
     private jumping = false;
+    private dead = false;
 
-    private animatedSprite$: AnimatedSprite | undefined;
-
-    private health = new HealthComponent(100);
+    private animatedSprite$?: AnimatedSprite;
+    private hitbox$?: Area;
 
     protected _ready(): void {
         this.animatedSprite$ = this.getNode<AnimatedSprite>("AnimatedSprite");
-        console.log(this.animatedSprite$);
-        this.health.onDeath.connect(this.didIDie);
+        this.hitbox$ = this.getNode<Area>("Hitbox");
+
+        this.hitbox$?.onAreaEntered.connect(this.onHurtBoxHit.bind(this));
+        this.health.onDeath.connect(this.didIDie.bind(this));
     }
 
     protected _physicsProcess(delta: number): void {
+        if (this.dead) {
+            return;
+        }
+
         if (!this.isOnFloor()) {
             this.velocity.add(this.gravity.clone().multiply(delta));
             if (this.velocity.y > this.MAX_FALL_SPEED) {
@@ -91,7 +98,12 @@ export class Player extends Entity {
         return this.velocity.y > 100;
     }
 
+    protected onHurtBoxHit() {
+        this.health.takeDamage(50);
+    }
+
     protected didIDie(): void {
-        alert("Morri");
+        this.animatedSprite$?.play("Dead");
+        this.dead = true;
     }
 }

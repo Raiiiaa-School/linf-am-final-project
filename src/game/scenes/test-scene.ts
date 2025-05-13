@@ -11,6 +11,8 @@ import { Colors } from "../../core/constants/colors";
 import { PhysicsEngine } from "../../core/systems/physics-engine";
 import { Player } from "../characters/player/player";
 import PlayerScene from "../characters/player/player.scene";
+import { EnemyMelee } from "../characters/enemies/melee/enemyMelee";
+import EnemyMeleeScene from "../characters/enemies/melee/enemyMelee.scene";
 
 export class TestScene {
     private rootNode: Node2D;
@@ -46,16 +48,17 @@ export class TestScene {
                 })
                     .addChild(
                         new Sprite({
-                            texture: Texture.fromColor(Colors.PINK, 600, 100),
+                            texture: Texture.fromColor(Colors.PINK, 2000, 100),
                         }),
                     )
                     .addChild(
                         new CollisionShape({
-                            shape: Shape.Rectangle(600, 100),
+                            shape: Shape.Rectangle(2000, 100),
                         }),
                     ),
             )
-            .addChild(PlayerScene);
+            .addChild(PlayerScene)
+            .addChild(EnemyMeleeScene);
     }
 
     start() {

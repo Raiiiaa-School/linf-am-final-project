@@ -1,6 +1,6 @@
 import { Shape, Texture, Vector2 } from "../../../core/utils";
 import { Player } from "./player";
-import { CollisionShape, Sprite } from "../../../core/nodes";
+import { Area, CollisionShape, Sprite } from "../../../core/nodes";
 import { AnimatedSprite } from "../../../core/nodes/animated-sprite";
 
 const playerAnimations = new AnimatedSprite();
@@ -41,6 +41,16 @@ playerAnimations.addAnimation({
 });
 
 playerAnimations.addAnimation({
+    name: "Dead",
+    loop: false,
+    speed: 4,
+    frames: Texture.fromSpriteSheet(
+        new URL("../../../assets/characters/Shinobi/Dead.png", import.meta.url),
+        { frameCount: 4, size: spriteSize },
+    ),
+});
+
+playerAnimations.addAnimation({
     name: "Fall",
     loop: true,
     speed: 10,
@@ -60,6 +70,11 @@ const PlayerScene = new Player({
             shape: Shape.Rectangle(20, 75),
             position: new Vector2(0, 37),
         }),
+    )
+    .addChild(
+        new Area({ name: "Hitbox" }).addChild(
+            new CollisionShape({ shape: Shape.Rectangle(50, 50), debug: true }),
+        ),
     );
 
 export default PlayerScene;

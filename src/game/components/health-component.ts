@@ -31,6 +31,9 @@ export class HealthComponent {
     }
 
     public takeDamage(amount: number): void {
+        if (this.currentHealth <= 0) {
+            return;
+        }
         this.currentHealth -= amount;
 
         if (this.currentHealth <= 0) {

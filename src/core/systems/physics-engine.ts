@@ -7,13 +7,15 @@ import { CharacterBody, RigidBody } from "../nodes";
 export class PhysicsEngine {
     private static physicsObjects: PhysicsObject[] = [];
     private static areas: Area[] = [];
+
+    private static areaSpatialGrid: Map<string, Set<Area>> = new Map();
     private static spatialGrid: Map<string, Set<PhysicsObject>> = new Map();
+    private static areaCells: Map<Area, string[]> = new Map();
     private static objectCells: Map<PhysicsObject, string[]> = new Map();
 
     private static readonly GRID_SIZE = 100;
     private static readonly AIR_RESISTANCE = 0.02;
     private static readonly SUBSTEPS = 3;
-    private static readonly RESTITUTION = 0.2;
     private static readonly VELOCITY_THRESHOLD = 300;
 
     public static addPhysicsObject(physicsObject: PhysicsObject): void {
@@ -46,7 +48,9 @@ export class PhysicsEngine {
         return `${x},${y}`;
     }
 
-    private static getOverlappingCells(object: PhysicsObject): string[] {
+    private static getOverlappingCells<T extends PhysicsObject | Area>(
+        object: T,
+    ): string[] {
         const shape = object.getCollisionShape();
         if (!shape) return [];
 
@@ -80,55 +84,76 @@ export class PhysicsEngine {
         return Array.from(cells);
     }
 
-    private static updateSpatialGrid(object: PhysicsObject) {
+    private static updateSpatialGrid<T extends PhysicsObject | Area>(
+        object: T,
+    ) {
+        const isArea = object instanceof Area;
+        const cells = isArea ? this.areaCells : this.objectCells;
         const newCells = this.getOverlappingCells(object);
-        const oldCells = this.objectCells.get(object) || [];
+        const oldCells = isArea
+            ? (cells.get(object as Area & PhysicsObject) ?? [])
+            : (cells.get(object as Area & PhysicsObject) ?? []);
+        const spatialGrid = isArea ? this.areaSpatialGrid : this.spatialGrid;
 
         for (const oldCell of oldCells) {
             if (newCells.includes(oldCell)) {
                 continue;
             }
 
-            const cellObjects = this.spatialGrid.get(oldCell);
+            const cellObjects = spatialGrid.get(oldCell);
             if (!cellObjects) {
                 continue;
             }
 
-            cellObjects.delete(object);
+            cellObjects.delete(object as any);
             if (cellObjects.size === 0) {
-                this.spatialGrid.delete(oldCell);
+                spatialGrid.delete(oldCell);
             }
         }
 
         for (const cell of newCells) {
-            if (!this.spatialGrid.has(cell)) {
-                this.spatialGrid.set(cell, new Set());
+            if (!spatialGrid.has(cell)) {
+                spatialGrid.set(cell, new Set<Area & PhysicsObject>());
             }
-            this.spatialGrid.get(cell)?.add(object);
+            spatialGrid.get(cell)?.add(object as Area & PhysicsObject);
         }
 
-        this.objectCells.set(object, newCells);
+        cells.set(object as Area & PhysicsObject, newCells);
     }
 
-    private static removeSpatialGrid(object: PhysicsObject) {
-        const cells = this.objectCells.get(object);
-        if (cells) {
-            cells.forEach((cell) => {
-                const objects = this.spatialGrid.get(cell);
-                if (objects) {
-                    objects.delete(object);
-                    if (objects.size === 0) {
-                        this.spatialGrid.delete(cell);
-                    }
+    private static removeSpatialGrid<T extends PhysicsObject | Area>(
+        object: T,
+    ) {
+        const isArea = object instanceof Area;
+        const cells = isArea ? this.areaCells : this.objectCells;
+        const newCells = this.getOverlappingCells(object);
+        const oldCells = isArea
+            ? (cells.get(object as Area & PhysicsObject) ?? [])
+            : (cells.get(object as Area & PhysicsObject) ?? []);
+        const spatialGrid = isArea ? this.areaSpatialGrid : this.spatialGrid;
+
+        const objectCells = cells.get(object as Area & PhysicsObject);
+        if (!objectCells) {
+            return;
+        }
+
+        objectCells.forEach((cell) => {
+            const objects = spatialGrid.get(cell);
+            if (objects) {
+                objects.delete(object as Area & PhysicsObject);
+                if (objects.size === 0) {
+                    spatialGrid.delete(cell);
                 }
-            });
-            this.objectCells.delete(object);
-        }
+            }
+        });
+        cells.delete(object as Area & PhysicsObject);
     }
 
-    private static getNearbyObjects(object: PhysicsObject) {
+    private static getNearbyObjects<T extends Area | PhysicsObject>(object: T) {
+        const isArea = object instanceof Area;
         const objectCells = this.getOverlappingCells(object);
-        const nearby: Set<PhysicsObject> = new Set();
+        const spatialGrid = isArea ? this.areaSpatialGrid : this.spatialGrid;
+        const nearby = new Set<T>();
 
         // Check all cells this object overlaps and their neighbors
         objectCells.forEach((cell) => {
@@ -138,11 +163,11 @@ export class PhysicsEngine {
             for (let dx = -1; dx <= 1; dx++) {
                 for (let dy = -1; dy <= 1; dy++) {
                     const checkCell = `${baseX + dx},${baseY + dy}`;
-                    const cellObjects = this.spatialGrid.get(checkCell);
+                    const cellObjects = spatialGrid.get(checkCell);
                     if (cellObjects) {
                         cellObjects.forEach((obj) => {
                             if (obj !== object) {
-                                nearby.add(obj);
+                                nearby.add(obj as T);
                             }
                         });
                     }
@@ -176,6 +201,16 @@ export class PhysicsEngine {
                 this.updateSpatialGrid(obj);
             });
             this.resolveCollisions(subDelta);
+
+            this.areas.forEach((area) => {
+                if (!area.isMonitoring()) {
+                    return;
+                }
+
+                this.updateSpatialGrid(area);
+            });
+
+            this.resolveAreas(delta);
         }
     }
 
@@ -233,5 +268,59 @@ export class PhysicsEngine {
         } else {
             objA.setPosition(objA.position.subtract(collision.mtv));
         }
+    }
+
+    private static resolveAreas(delta: number) {
+        for (let i = 0; i < this.areas.length; i++) {
+            const area = this.areas[i];
+
+            if (!area.isMonitoring()) {
+                continue;
+            }
+
+            const nearbyObjects = this.getNearbyObjects(area);
+
+            for (let j = 0; j < nearbyObjects.length; j++) {
+                const other = nearbyObjects[j];
+
+                if (!other.isMonitorable()) {
+                    return;
+                }
+
+                if (area === other) {
+                    return;
+                }
+
+                const thisShape = area.getCollisionShape();
+                const otherShape = other.getCollisionShape();
+
+                if (!thisShape || !otherShape) {
+                    continue;
+                }
+
+                const collision = thisShape.checkCollision(otherShape);
+
+                if (!collision.colliding) {
+                    if (area.getOverlappingAreas().has(other)) {
+                        area.removeOverlappingArea(other);
+                    }
+                    continue;
+                }
+                this.resolveAreaCollision(area, other, collision);
+            }
+        }
+    }
+
+    private static resolveAreaCollision(
+        areaA: Area,
+        areaB: Area,
+        collision: CollisionInfo,
+    ) {
+        if (!collision.mtv) {
+            return;
+        }
+
+        areaA.addOverlappingArea(areaB);
+        areaB.addOverlappingArea(areaA);
     }
 }
