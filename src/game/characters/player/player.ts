@@ -27,68 +27,72 @@ export class Player extends Entity {
     }
 
     protected _physicsProcess(delta: number): void {
-        if (this.dead) {
-            return;
-        }
-
         if (!this.isOnFloor()) {
             this.velocity.add(this.gravity.clone().multiply(delta));
             if (this.velocity.y > this.MAX_FALL_SPEED) {
                 this.velocity.y = this.MAX_FALL_SPEED;
             }
 
-            if (this.isFalling() && !this.jumping) {
+            if (this.isFalling() && !this.jumping && !this.dead) {
                 this.animatedSprite$?.play("Fall");
             }
         }
 
-        if (!this.isOnFloor()) {
-            this.jumping = false;
-        }
-        const moveDir = Input.getAxis("MOVE_LEFT", "MOVE_RIGHT");
-
-        let targetVelX = moveDir * this.SPEED;
         let currentVelX = this.velocity.x;
+        if (!this.dead) {
+            if (!this.isOnFloor()) {
+                this.jumping = false;
+            }
+            const moveDir = Input.getAxis("MOVE_LEFT", "MOVE_RIGHT");
 
-        const accelaration = this.isOnFloor()
-            ? this.ACCELERATION
-            : this.ACCELERATION * this.AIR_CONTROL;
+            let targetVelX = moveDir * this.SPEED;
 
-        const deceleration = this.isGrounded
-            ? this.FRICTION
-            : this.FRICTION * this.AIR_CONTROL;
+            const accelaration = this.isOnFloor()
+                ? this.ACCELERATION
+                : this.ACCELERATION * this.AIR_CONTROL;
 
-        if (moveDir === -1) {
-            this.animatedSprite$?.flipHorizontal();
-        } else if (moveDir === 1) {
-            this.animatedSprite$?.flipHorizontal(true);
-        }
+            const deceleration = this.isGrounded
+                ? this.FRICTION
+                : this.FRICTION * this.AIR_CONTROL;
 
-        if (Math.abs(targetVelX) > 0.1) {
-            currentVelX = this.moveTowards(
-                currentVelX,
-                targetVelX,
-                accelaration * delta,
-            );
-            if (!this.isFalling() && !this.jumping) {
-                this.animatedSprite$?.play("Run");
+            if (moveDir === -1) {
+                this.animatedSprite$?.flipHorizontal();
+            } else if (moveDir === 1) {
+                this.animatedSprite$?.flipHorizontal(true);
+            }
+
+            if (Math.abs(targetVelX) > 0.1) {
+                currentVelX = this.moveTowards(
+                    currentVelX,
+                    targetVelX,
+                    accelaration * delta,
+                );
+                if (!this.isFalling() && !this.jumping) {
+                    this.animatedSprite$?.play("Run");
+                }
+            } else {
+                currentVelX = this.moveTowards(
+                    currentVelX,
+                    0,
+                    deceleration * delta,
+                );
+                if (this.isOnFloor()) {
+                    this.animatedSprite$?.play("Idle");
+                }
+            }
+
+            if (Input.isActionPressed("JUMP") && this.isOnFloor()) {
+                this.velocity.y = -this.JUMP_FORCE;
+                this.isGrounded = false;
+                this.animatedSprite$?.play("Jump");
+                this.jumping = true;
             }
         } else {
             currentVelX = this.moveTowards(
                 currentVelX,
                 0,
-                deceleration * delta,
+                this.FRICTION * delta,
             );
-            if (this.isOnFloor()) {
-                this.animatedSprite$?.play("Idle");
-            }
-        }
-
-        if (Input.isActionPressed("JUMP") && this.isOnFloor()) {
-            this.velocity.y = -this.JUMP_FORCE;
-            this.isGrounded = false;
-            this.animatedSprite$?.play("Jump");
-            this.jumping = true;
         }
 
         this.moveAndSlide(new Vector2(currentVelX, this.velocity.y), delta);

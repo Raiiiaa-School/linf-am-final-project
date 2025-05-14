@@ -32,7 +32,6 @@ const EnemyMeleeScene = new EnemyMelee({
     .addChild(
         new CollisionShape({
             shape: Shape.Rectangle(20, 75),
-            debug: true,
             position: new Vector2(0, 37),
         }),
     )
