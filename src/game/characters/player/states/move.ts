@@ -11,7 +11,7 @@ export class MoveState extends BaseState {
     processPhysics(delta: number): PlayerState | undefined {
         super.processPhysics(delta);
 
-        if (Input.isActionPressed("JUMP")) {
+        if (Input.isActionJustPressed("JUMP")) {
             return PlayerState.JUMPING;
         }
 

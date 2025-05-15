@@ -1,18 +1,19 @@
 import { Vector2 } from "../../core/utils/vector2";
-import { Camera } from "../../core/nodes/camera";
+
 import { Node2D } from "../../core/nodes/node";
 import { Sprite } from "../../core/nodes/sprite";
 import { Texture } from "../../core/utils/texture";
-import { RigidBody } from "../../core/nodes/physics/rigidbody";
+
 import { CollisionShape } from "../../core/nodes/physics/collision-shape";
 import { Shape } from "../../core/utils/shape";
 import { StaticBody } from "../../core/nodes/physics/staticbody";
 import { Colors } from "../../core/constants/colors";
 import { PhysicsEngine } from "../../core/systems/physics-engine";
-import { Player } from "../characters/player/player";
+
 import PlayerScene from "../characters/player/player.scene";
-import { EnemyMelee } from "../characters/enemies/melee/enemyMelee";
+
 import EnemyMeleeScene from "../characters/enemies/melee/enemyMelee.scene";
+import { Input } from "../../core/systems";
 
 export class TestScene {
     private rootNode: Node2D;
@@ -51,6 +52,7 @@ export class TestScene {
         PhysicsEngine.update(delta);
         this.rootNode.update(delta);
         this.rootNode.draw(ctx);
+        Input.update();
 
         // const currentFrame = 0;
         // const x = 100;

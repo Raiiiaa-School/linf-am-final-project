@@ -23,7 +23,7 @@ export class IdleState extends MoveState {
             return PlayerState.FALLING;
         }
 
-        if (Input.isActionPressed("JUMP")) {
+        if (Input.isActionJustPressed("JUMP")) {
             return PlayerState.JUMPING;
         }
 
