@@ -7,7 +7,7 @@ import { Node2D } from "../node";
 import { Signal } from "../../utils";
 
 export abstract class PhysicsObject extends CollisionObject {
-    protected readonly MAX_FALL_SPEED: number = 5000;
+    public readonly MAX_FALL_SPEED: number = 5000;
     protected readonly ANGULAR_DAMPING = 0.98;
 
     protected previousPosition?: Vector2;
@@ -62,6 +62,22 @@ export abstract class PhysicsObject extends CollisionObject {
         this.velocity = velocity.clone();
     }
 
+    public setVelocityX(velocityX: number): void {
+        const maxSpeed = 1000;
+        if (Math.abs(velocityX) > maxSpeed) {
+            velocityX = Math.sign(velocityX) * maxSpeed;
+        }
+        this.velocity.x = velocityX;
+    }
+
+    public setVelocityY(velocityY: number): void {
+        const maxSpeed = 1000;
+        if (Math.abs(velocityY) > maxSpeed) {
+            velocityY = Math.sign(velocityY) * maxSpeed;
+        }
+        this.velocity.y = velocityY;
+    }
+
     public getPreviousPosition(): Vector2 | undefined {
         return this.previousPosition;
     }
@@ -80,6 +96,10 @@ export abstract class PhysicsObject extends CollisionObject {
 
     public getFriction(): number {
         return this.friction;
+    }
+
+    public getGravity(): Vector2 {
+        return this.gravity;
     }
 
     public isOnFloor(): boolean {

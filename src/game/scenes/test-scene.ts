@@ -16,32 +16,9 @@ import EnemyMeleeScene from "../characters/enemies/melee/enemyMelee.scene";
 
 export class TestScene {
     private rootNode: Node2D;
-    image = new Image();
 
     constructor() {
-        this.image.src = new URL(
-            "../../assets/characters/Shinobi/Idle.png",
-            import.meta.url,
-        ).toString();
-
         this.rootNode = new Node2D()
-            .addChild(
-                new RigidBody({
-                    name: "Trash",
-                    position: new Vector2(150, 100),
-                    mass: 1,
-                    bounciness: 10,
-                    friction: 0.1,
-                })
-                    .addChild(
-                        new Sprite({
-                            texture: Texture.fromColor(Colors.ORANGE, 30, 30),
-                        }),
-                    )
-                    .addChild(
-                        new CollisionShape({ shape: Shape.Rectangle(30, 30) }),
-                    ),
-            )
             .addChild(
                 new StaticBody({
                     position: new Vector2(300, 500),
@@ -64,7 +41,9 @@ export class TestScene {
     start() {
         return new Promise<void>((resolve) => {
             this.rootNode.initialize();
-            resolve();
+            setTimeout(() => {
+                resolve();
+            }, 1000);
         });
     }
 

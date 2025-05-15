@@ -23,7 +23,7 @@ playerAnimations.addAnimation({
 playerAnimations.addAnimation({
     name: "Run",
     loop: true,
-    speed: 6,
+    speed: 8,
     frames: Texture.fromSpriteSheet(
         new URL("../../../assets/characters/Shinobi/Run.png", import.meta.url),
         { frameCount: 8, size: spriteSize, offset: new Vector2(10, 0) },
@@ -33,7 +33,7 @@ playerAnimations.addAnimation({
 playerAnimations.addAnimation({
     name: "Jump",
     loop: false,
-    speed: 6,
+    speed: 10,
     frames: Texture.fromSpriteSheet(
         new URL("../../../assets/characters/Shinobi/Jump.png", import.meta.url),
         { frameCount: 12, size: spriteSize },

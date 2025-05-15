@@ -26,14 +26,14 @@ export class CharacterBody extends PhysicsObject {
         return true;
     }
 
-    protected moveTowards(from: number, to: number, delta: number): number {
+    public moveTowards(from: number, to: number, delta: number): number {
         if (Math.abs(to - from) <= delta) {
             return to;
         }
         return from + Math.sign(to - from) * delta;
     }
 
-    protected moveAndSlide(velocity: Vector2, delta: number) {
+    public moveAndSlide(velocity: Vector2, delta: number) {
         this.velocity = velocity;
         this.integrateVelocity(delta);
     }
