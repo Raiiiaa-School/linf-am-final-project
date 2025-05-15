@@ -3,6 +3,8 @@ import { Vector2 } from "../utils/vector2";
 export class Input {
     private static instance: Input;
     private static pressedKeys: Set<string>;
+    private static prevPressedKeys: Set<string>;
+    private static prevPressedButtons: Set<number>;
     private static pressedButtons: Set<number>;
     private static mousePosition: Vector2;
 
@@ -73,7 +75,9 @@ export class Input {
     };
 
     private constructor() {
+        Input.prevPressedKeys = new Set();
         Input.pressedKeys = new Set();
+        Input.prevPressedButtons = new Set();
         Input.pressedButtons = new Set();
         Input.mousePosition = new Vector2(0, 0);
 
@@ -95,8 +99,15 @@ export class Input {
         return this.instance;
     }
 
+    public static update(): void {
+        Input.prevPressedKeys = new Set(Input.pressedKeys);
+        Input.prevPressedButtons = new Set(Input.pressedButtons);
+    }
+
     private static handleKeyDown(event: KeyboardEvent) {
-        Input.pressedKeys.add(event.key);
+        if (!Input.pressedKeys.has(event.key)) {
+            Input.pressedKeys.add(event.key);
+        }
     }
 
     private static handleKeyUp(event: KeyboardEvent) {
@@ -109,7 +120,9 @@ export class Input {
     }
 
     private static handleMouseDown(event: MouseEvent) {
-        Input.pressedButtons.add(event.button);
+        if (!Input.pressedButtons.has(event.button)) {
+            Input.pressedButtons.add(event.button);
+        }
     }
 
     private static handleMouseUp(event: MouseEvent) {
@@ -151,5 +164,29 @@ export class Input {
 
     public static isMouseButtonPressed(button: number): boolean {
         return Input.pressedButtons.has(button);
+    }
+
+    public static isKeyJustPressed(key: keyof typeof Input.KEYS): boolean {
+        const keyCode = Input.KEYS[key];
+        return (
+            Input.pressedKeys.has(keyCode) &&
+            !Input.prevPressedKeys.has(keyCode)
+        );
+    }
+    public static isActionJustPressed(
+        action: keyof typeof Input.ACTIONS,
+    ): boolean {
+        const keyCode = Input.ACTIONS[action];
+        return (
+            Input.pressedKeys.has(keyCode) &&
+            !Input.prevPressedKeys.has(keyCode)
+        );
+    }
+
+    public static isMouseButtonJustPressed(button: number): boolean {
+        return (
+            Input.pressedButtons.has(button) &&
+            !Input.prevPressedButtons.has(button)
+        );
     }
 }
