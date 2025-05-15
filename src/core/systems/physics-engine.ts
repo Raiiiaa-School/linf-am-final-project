@@ -166,9 +166,11 @@ export class PhysicsEngine {
                     const cellObjects = spatialGrid.get(checkCell);
                     if (cellObjects) {
                         cellObjects.forEach((obj) => {
-                            if (obj !== object) {
-                                nearby.add(obj as T);
+                            if (obj === object) {
+                                return;
                             }
+
+                            nearby.add(obj as T);
                         });
                     }
                 }
@@ -184,6 +186,10 @@ export class PhysicsEngine {
         for (let step = 0; step < this.SUBSTEPS; step++) {
             this.physicsObjects.forEach((obj) => {
                 if (obj.isStatic()) {
+                    return;
+                }
+
+                if (!obj.isEnabled()) {
                     return;
                 }
 

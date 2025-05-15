@@ -8,12 +8,6 @@ import { StateManager } from "./states/state-manager";
 import { PlayerState } from "./states/base-state";
 
 export class Player extends Entity {
-    protected readonly JUMP_FORCE = 600;
-    protected readonly AIR_CONTROL = 0.3;
-
-    protected jumping = false;
-    protected dead = false;
-
     protected stateManager: StateManager = new StateManager(
         this,
         PlayerState.FALLING,
@@ -28,7 +22,7 @@ export class Player extends Entity {
 
         this.stateManager.init();
 
-        // this.hitbox$?.onAreaEntered.connect(this.onHurtBoxHit.bind(this));
+        this.hitbox$?.onAreaEntered.connect(this.onHurtBoxHit.bind(this));
         this.health.onDeath.connect(this.didIDie.bind(this));
     }
 
@@ -40,9 +34,11 @@ export class Player extends Entity {
         this.stateManager.process(delta);
     }
 
+    protected onHurtBoxHit(other: Area): void {
+        this.health.takeDamage(50);
+    }
+
     protected didIDie(): void {
-        // CHANGE STATE ON STATE MACHINE
-        this.animatedSprite$?.play("Dead");
-        this.dead = true;
+        this.stateManager.changeState(PlayerState.DEAD);
     }
 }

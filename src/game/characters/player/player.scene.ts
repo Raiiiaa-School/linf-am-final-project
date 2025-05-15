@@ -60,6 +60,19 @@ playerAnimations.addAnimation({
     ),
 });
 
+playerAnimations.addAnimation({
+    name: "Throw",
+    loop: false,
+    speed: 10,
+    frames: Texture.fromSpriteSheet(
+        new URL(
+            "../../../assets/characters/Shinobi/Attack_2.png",
+            import.meta.url,
+        ),
+        { frameCount: 3, size: spriteSize },
+    ),
+});
+
 const PlayerScene = new Player({
     name: "Player",
     position: new Vector2(150, 0),

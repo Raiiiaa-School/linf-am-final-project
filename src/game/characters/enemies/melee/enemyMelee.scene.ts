@@ -36,7 +36,7 @@ const EnemyMeleeScene = new EnemyMelee({
         }),
     )
     .addChild(
-        new Area({ name: "Hurtbox" }).addChild(
+        new Area({ name: "Hitbox" }).addChild(
             new CollisionShape({ shape: Shape.Rectangle(50, 50), debug: true }),
         ),
     );

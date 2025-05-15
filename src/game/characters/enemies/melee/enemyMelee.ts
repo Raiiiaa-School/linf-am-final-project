@@ -1,6 +1,7 @@
 import { AnimatedSprite } from "../../../../core/nodes/animated-sprite";
 import { Entity } from "../../entity";
 import { Vector2 } from "../../../../core/utils";
+import { Area } from "../../../../core/nodes";
 
 export class EnemyMelee extends Entity {
     private readonly SPEED = 200;
@@ -11,11 +12,15 @@ export class EnemyMelee extends Entity {
 
     private jumping = false;
 
-    private animatedSprite$: AnimatedSprite | undefined;
+    private animatedSprite$?: AnimatedSprite;
+    private hitbox$?: Area;
 
     protected _ready(): void {
         this.animatedSprite$ = this.getNode<AnimatedSprite>("AnimatedSprite");
-        this.health.onDeath.connect(this.didIDie);
+        this.hitbox$ = this.getNode<Area>("Hitbox");
+
+        this.hitbox$?.onAreaEntered.connect(this.onAreaEntered.bind(this));
+        this.health.onDeath.connect(this.didIDie.bind(this));
     }
 
     protected _physicsProcess(delta: number): void {
@@ -33,51 +38,6 @@ export class EnemyMelee extends Entity {
         if (!this.isOnFloor()) {
             this.jumping = false;
         }
-        // const moveDir = Input.getAxis("MOVE_LEFT", "MOVE_RIGHT");
-
-        // let targetVelX = moveDir * this.SPEED;
-        // let currentVelX = this.velocity.x;
-
-        // const accelaration = this.isOnFloor()
-        //     ? this.ACCELERATION
-        //     : this.ACCELERATION * this.AIR_CONTROL;
-
-        // const deceleration = this.isGrounded
-        //     ? this.FRICTION
-        //     : this.FRICTION * this.AIR_CONTROL;
-
-        // if (moveDir === -1) {
-        //     this.animatedSprite$?.flipHorizontal();
-        // } else if (moveDir === 1) {
-        //     this.animatedSprite$?.flipHorizontal(true);
-        // }
-
-        // if (Math.abs(targetVelX) > 0.1) {
-        //     currentVelX = this.moveTowards(
-        //         currentVelX,
-        //         targetVelX,
-        //         accelaration * delta,
-        //     );
-        //     if (!this.isFalling() && !this.jumping) {
-        //         this.animatedSprite$?.play("Run");
-        //     }
-        // } else {
-        //     currentVelX = this.moveTowards(
-        //         currentVelX,
-        //         0,
-        //         deceleration * delta,
-        //     );
-        //     if (this.isOnFloor()) {
-        //         this.animatedSprite$?.play("Idle");
-        //     }
-        // }
-
-        // if (Input.isActionPressed("JUMP") && this.isOnFloor()) {
-        //     this.velocity.y = -this.JUMP_FORCE;
-        //     this.isGrounded = false;
-        //     this.animatedSprite$?.play("Jump");
-        //     this.jumping = true;
-        // }
 
         this.moveAndSlide(new Vector2(0, this.velocity.y), delta);
     }
@@ -86,7 +46,16 @@ export class EnemyMelee extends Entity {
         return this.velocity.y > 100;
     }
 
+    protected onAreaEntered(area: Area): void {
+        this.health.takeDamage(50);
+    }
+
     protected didIDie(): void {
-        alert("Morri");
+        this.queueDestroy();
+    }
+
+    protected _destroy(): void {
+        this.hitbox$?.onAreaEntered.disconnect(this.onAreaEntered.bind(this));
+        super._destroy();
     }
 }

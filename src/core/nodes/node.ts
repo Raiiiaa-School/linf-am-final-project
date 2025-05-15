@@ -7,6 +7,7 @@ export class Node2D {
     protected parent: Node2D | undefined = undefined;
     protected enabled: boolean = true;
     protected grouped: boolean = true;
+    private isDestroyed: boolean = false;
 
     public position: Vector2;
     public rotation: number;
@@ -98,6 +99,14 @@ export class Node2D {
         return this.name;
     }
 
+    public isEnabled(): boolean {
+        return this.enabled;
+    }
+
+    public setEnabled(enabled: boolean): void {
+        this.enabled = enabled;
+    }
+
     private searchNode<T extends Node2D = Node2D>(name: string): T | undefined {
         if (this.name === name) {
             return this as any;
@@ -148,19 +157,45 @@ export class Node2D {
     }
 
     public initialize(): void {
+        if (!this.enabled) {
+            return;
+        }
+
         this._init();
-        this.children.forEach((child) => child._init());
+        this.children.forEach((child) => {
+            if (!child.enabled) {
+                return;
+            }
+            child._init();
+        });
 
         this._ready();
-        this.children.forEach((child) => child._ready());
+        this.children.forEach((child) => {
+            if (!child.enabled) {
+                return;
+            }
+            child._ready();
+        });
     }
 
     public update(delta: number): void {
+        if (!this.enabled) {
+            return;
+        }
         this._process(delta);
-        this.children.forEach((child) => child.update(delta));
+        this.children.forEach((child) => {
+            if (!child.enabled) {
+                return;
+            }
+            child.update(delta);
+        });
     }
 
     public draw(ctx: CanvasRenderingContext2D): void {
+        if (!this.enabled) {
+            return;
+        }
+
         ctx.save();
 
         ctx.translate(this.position.x, this.position.y);
@@ -173,15 +208,27 @@ export class Node2D {
 
         this._draw(ctx);
 
-        this.children.forEach((child) => child.draw(ctx));
+        this.children.forEach((child) => {
+            if (!child.enabled) {
+                return;
+            }
+            child.draw(ctx);
+        });
 
         ctx.restore();
+    }
+
+    public queueDestroy(): void {
+        if (this.isDestroyed) return;
+        this.parent?.removeChild(this);
+        this._destroy();
     }
 
     protected _init(): void {}
     protected _ready(): void {}
     protected _process(delta: number): void {}
     protected _draw(ctx: CanvasRenderingContext2D): void {}
+    protected _destroy(): void {}
 }
 
 export interface Node2DSettings {

@@ -1,5 +1,6 @@
 import { Player } from "../player";
 import { BaseState, PlayerState } from "./base-state";
+import { DeadState } from "./dead";
 import { FallState } from "./fall";
 import { IdleState } from "./idle";
 import { JumpState } from "./jump";
@@ -26,7 +27,7 @@ export class StateManager {
         // this.states.set(PlayerState.DASHING, new DashingState(this.player));
         // this.states.set(PlayerState.ATTACKING, new AttackingState(this.player));
         // this.states.set(PlayerState.DEFENDING, new DefendingState(this.player));
-        // this.states.set(PlayerState.DEAD, new DeadState(this.player));
+        this.states.set(PlayerState.DEAD, new DeadState(this.player));
 
         this.changeState(this.initialState);
     }
